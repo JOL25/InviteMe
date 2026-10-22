@@ -25,3 +25,9 @@ Comprobado: ESLint, TypeScript y 26 pruebas (16 de validación y 10 sobre Postgr
 Registro, login, confirmación de correo, cierre de sesión y refresco SSR. Verificación de identidad en servidor. Pantallas adaptables con estados de error y de servicio pendiente de configuración.
 
 Comprobado: ESLint, TypeScript, 26 pruebas y compilación de producción. Prueba real de correo y sesión pendiente de conectar el proyecto exclusivo de Supabase.
+
+## 04 · Eventos
+
+Panel con búsqueda y paginación, creación/edición, borradores, publicación, cierre de RSVP y eliminación con confirmación. Datos y tema se guardan juntos. Los cupos no se pueden reducir por debajo de los confirmados.
+
+Comprobado: ESLint, TypeScript, 26 pruebas y compilación de producción. Flujo autenticado contra Supabase pendiente de conexión.
