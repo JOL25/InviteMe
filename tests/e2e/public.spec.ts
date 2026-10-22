@@ -1,15 +1,17 @@
 import { test, expect } from '@playwright/test';
-test('la landing y la invitación caben en pantallas de 320 px', async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 320, height: 700 });
-  for (const path of ['/', '/ejemplo']) {
-    await page.goto(path);
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= window.innerWidth + 1,
-      ),
-    ).toBe(true);
+test('la landing y la invitación caben en móvil y tablet', async ({ page }) => {
+  for (const width of [320, 714, 820]) {
+    await page.setViewportSize({ width, height: 700 });
+    for (const path of ['/', '/ejemplo']) {
+      await page.goto(path);
+      expect(
+        await page.evaluate(
+          () =>
+            document.documentElement.scrollWidth <=
+            document.documentElement.clientWidth + 1,
+        ),
+      ).toBe(true);
+    }
   }
 });
 test('landing, ejemplo y RSVP de demostración', async ({ page }) => {
@@ -45,7 +47,9 @@ test('no hay desbordamiento horizontal en páginas públicas', async ({
     await page.goto(path);
     expect(
       await page.evaluate(
-        () => document.documentElement.scrollWidth <= window.innerWidth + 1,
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth + 1,
       ),
     ).toBe(true);
     await expect(page.locator('main')).toBeVisible();

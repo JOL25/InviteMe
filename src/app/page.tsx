@@ -85,7 +85,7 @@ export default function Home() {
                 <span>Lista para compartir</span>
               </div>
             </div>
-            <div className="hero-art">
+            <div className="hero-art" data-reveal>
               <span className="art-orbit" />
               <div className="sample-invitation">
                 <Botanical className="card-botanical botanical-one" />

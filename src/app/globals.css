@@ -672,8 +672,8 @@ input[type='checkbox'] {
 }
 .art-orbit {
   position: absolute;
-  width: 440px;
-  height: 440px;
+  width: min(440px, 100%);
+  aspect-ratio: 1;
   border: 1px solid #e5dace;
   border-radius: 50%;
   z-index: -1;
@@ -1532,7 +1532,7 @@ td small {
     gap: 25px;
   }
 }
-@media (max-width: 700px) {
+@media (max-width: 800px) {
   .header-cta {
     display: none;
   }

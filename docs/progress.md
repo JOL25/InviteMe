@@ -80,3 +80,5 @@ Entradas escalonadas en el hero, aparición de la tarjeta de invitación y eleme
 `ScrollReveal` mantiene visible el HTML del servidor y solo prepara elementos fuera del viewport después de hidratar. El contenido sigue disponible sin JavaScript o sin IntersectionObserver. La opción del sistema de movimiento reducido elimina las animaciones y descubre inmediatamente cualquier sección pendiente; foco y enlaces de ancla tampoco esperan al revelado.
 
 Comprobado: ESLint, TypeScript, 39 pruebas de unidades/SQL y 18 pruebas de navegador en escritorio y móvil. Las seis comprobaciones nuevas cubren revelado, cambio de preferencia en caliente, llegada al RSVP y contenido sin JavaScript.
+
+La revisión visual incluyó el panel lateral y los anchos de 320, 714 y 820 px. El hero pasa a una columna en ventanas intermedias y su círculo decorativo se ajusta al espacio disponible; el control de desbordamiento compara con el ancho real del contenido, descontando la barra de desplazamiento.
