@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { EventForm } from '@/components/event-form';
 import { PublishButton, DeleteButton } from '@/components/event-controls';
 import { ownedEvent } from '@/lib/events';
+import { CoverForm } from '@/components/cover-form';
 export default async function EditEvent({
   params,
 }: {
@@ -31,6 +32,7 @@ export default async function EditEvent({
         <Link href={`/dashboard/events/${id}/share`}>Compartir y QR</Link>
       </nav>
       <EventForm event={event} />
+      <CoverForm id={id} hasCover={Boolean(event.cover_path)} />
       <div className="danger-zone">
         <DeleteButton id={id} />
       </div>

@@ -37,3 +37,9 @@ Comprobado: ESLint, TypeScript, 26 pruebas y compilación de producción. Flujo 
 Landing editorial en marfil, azul noche y rosa; ilustración botánica SVG local, muestra de invitación, beneficios, pasos y FAQ accesible con elementos nativos. Diseño adaptable sin fuentes ni fotografías externas.
 
 Comprobado: compilación de producción, revisión visual de capturas de escritorio/móvil y pruebas de navegación y desbordamiento.
+
+## 06 · Invitación y RSVP
+
+Invitación pública con proyección explícita de campos, noindex, fecha en la zona del evento, cuenta regresiva, mapa y formulario. Vista previa privada y muestra sin envíos. Portadas privadas, controles de formato y tamaño, colores con contraste validado. API con cuerpo limitado, validación de origen, CAPTCHA opcional y llamada exclusiva desde servidor a la función transaccional.
+
+Comprobado: ESLint, TypeScript, compilación de producción y pruebas locales. Validación conectada de CAPTCHA, Auth y Storage pendiente de Supabase real.

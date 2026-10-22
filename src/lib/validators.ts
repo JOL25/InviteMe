@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { contrastRatio } from '@/lib/colors';
 import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
 
 export const categories = [
@@ -50,7 +51,13 @@ export const eventSchema = z
       .trim()
       .min(3, 'Escribe un mensaje para tus invitados.')
       .max(3000),
-    primary_color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+    primary_color: z
+      .string()
+      .regex(/^#[0-9a-fA-F]{6}$/)
+      .refine(
+        (color) => contrastRatio(color, '#eee7db') >= 4.5,
+        'Elige un color principal más oscuro para que el texto sea legible.',
+      ),
     accent_color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
     rsvp_open: z.boolean(),
   })

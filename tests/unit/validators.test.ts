@@ -22,6 +22,11 @@ const rsvp = {
   idempotencyKey: '11d46126-7638-451e-b814-535c24941634',
 };
 describe('validación de eventos', () => {
+  it('rechaza colores principales sin contraste suficiente', () => {
+    expect(
+      eventSchema.safeParse({ ...event, primary_color: '#ffffff' }).success,
+    ).toBe(false);
+  });
   it('convierte la hora de Lima a UTC y deja cupo opcional', () => {
     const values = eventValues(eventSchema.parse(event));
     expect(values.starts_at).toBe('2027-06-18T22:30:00.000Z');
