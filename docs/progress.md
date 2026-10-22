@@ -31,3 +31,9 @@ Comprobado: ESLint, TypeScript, 26 pruebas y compilación de producción. Prueba
 Panel con búsqueda y paginación, creación/edición, borradores, publicación, cierre de RSVP y eliminación con confirmación. Datos y tema se guardan juntos. Los cupos no se pueden reducir por debajo de los confirmados.
 
 Comprobado: ESLint, TypeScript, 26 pruebas y compilación de producción. Flujo autenticado contra Supabase pendiente de conexión.
+
+## 05 · Landing y dirección visual
+
+Landing editorial en marfil, azul noche y rosa; ilustración botánica SVG local, muestra de invitación, beneficios, pasos y FAQ accesible con elementos nativos. Diseño adaptable sin fuentes ni fotografías externas.
+
+Comprobado: compilación de producción, revisión visual de capturas de escritorio/móvil y pruebas de navegación y desbordamiento.
