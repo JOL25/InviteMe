@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:connected": "node --env-file=.env.local scripts/verify-supabase.mjs",
     "check": "npm run lint && npm run typecheck && npm test",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

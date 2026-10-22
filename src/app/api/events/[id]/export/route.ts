@@ -28,13 +28,33 @@ export async function GET(
     );
   if (!event)
     return Response.json({ error: 'Evento no disponible.' }, { status: 404 });
-  const cutoff = new Date().toISOString();
+  // Use the latest committed database timestamp, not the application clock:
+  // millisecond precision or clock skew must not omit just-created replies.
+  const { data: latest, error: latestError } = await supabase
+    .from('rsvps')
+    .select('created_at')
+    .eq('event_id', id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (latestError)
+    return Response.json(
+      { error: 'No pudimos preparar la exportación.' },
+      { status: 503 },
+    );
+  const cutoff = latest?.created_at;
   const encoder = new TextEncoder();
   let page = 0;
   const stream = new ReadableStream({
     async pull(controller) {
       try {
-        if (page === 0) controller.enqueue(encoder.encode(csvHeader));
+        if (page === 0) {
+          controller.enqueue(encoder.encode(csvHeader));
+          if (!cutoff) {
+            controller.close();
+            return;
+          }
+        }
         const { data, error: readError } = await supabase
           .from('rsvps')
           .select('*')

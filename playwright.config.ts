@@ -6,10 +6,14 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }]],
   use: { baseURL: 'http://localhost:3100', trace: 'retain-on-failure' },
   webServer: {
-    command: 'npm run start -- --port 3100',
+    // Local .env.local can now contain a real backend. Build the public checks
+    // with the empty variables below; CI already built in its clean environment.
+    command: process.env.CI
+      ? 'npm run start -- --port 3100'
+      : 'npm run build && npm run start -- --port 3100',
     url: 'http://localhost:3100',
     reuseExistingServer: !process.env.CI,
-    timeout: 60000,
+    timeout: 120000,
     env: {
       NEXT_PUBLIC_SUPABASE_URL: '',
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: '',
