@@ -6,7 +6,7 @@ Next.js App Router, TypeScript estricto, Tailwind, ESLint, Prettier, comandos de
 
 Comprobado: ESLint, TypeScript y compilación de producción. Dependencias fijadas a versiones compatibles con Next.js. `npm audit --omit=dev`: sin vulnerabilidades de producción; el auditor señala cinco avisos derivados de `braces` en las herramientas de lint, sin arreglo compatible propuesto. No se fuerza una regresión de Next.js para ocultarlos.
 
-## Próximas entregas
+## Fases implementadas en código
 
 1. Datos, permisos, validadores y pruebas de SQL.
 2. Autenticación y gestión de eventos.
@@ -49,3 +49,19 @@ Comprobado: ESLint, TypeScript, compilación de producción y pruebas locales. V
 Resumen agregado con RLS, lista paginada y filtros de asistencia. Exportación autorizada desde servidor con paginación para evitar el límite de mil registros, UTF-8 y neutralización de fórmulas. Enlace copiable y QR descargable solo de eventos publicados.
 
 Comprobado: ESLint, TypeScript, compilación y 39 pruebas de unidades/base de datos. El resumen de un evento ajeno devuelve cero filas de datos sensibles. Pruebas de escaneo QR y descarga CSV contra el dominio real pendientes de infraestructura.
+
+## 08 · Verificación y entrega
+
+GitHub Actions ejecuta formato, lint, TypeScript, 39 pruebas de unidades/PostgreSQL, auditoría de producción, build y 12 pruebas de navegador. Las pruebas de navegador cubren escritorio/móvil, anchos de 320 px, navegación, formulario de muestra sin envíos, contador, rechazo de acceso al panel sin configuración y validación inicial de la API. Capturas revisadas localmente.
+
+La guía de despliegue enumera las comprobaciones conectadas pendientes y explica variables, migraciones, correo, límites y permisos de portadas.
+
+### Pendiente para producción
+
+- Elección por el usuario de la organización de Supabase y revisión de los costes antes de crear infraestructura.
+- Creación del proyecto exclusivo, aplicación de migraciones y configuración de Auth, secretos y CAPTCHA.
+- Pruebas conectadas de registro, confirmación de correo, CRUD, Storage, exportación y QR.
+- Concurrencia real desde varias conexiones y asesores de seguridad/rendimiento de Supabase.
+- Despliegue HTTPS y aceptación final.
+
+Estas tareas no se dan por verificadas mediante PGlite ni mediante las pruebas públicas sin credenciales.

@@ -10,7 +10,7 @@ export default async function Dashboard({
   searchParams: Promise<{ q?: string; page?: string }>;
 }) {
   const { q = '', page: rawPage } = await searchParams;
-  const page = Math.max(1, Math.min(10000, Number(rawPage) || 1));
+  const page = Math.max(1, Math.min(10000, Math.floor(Number(rawPage) || 1)));
   const { supabase, user } = await requireUser();
   let query = supabase
     .from('events')
