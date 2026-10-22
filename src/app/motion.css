@@ -1,0 +1,190 @@
+/* Motion is decorative, finite and opt-in through the system preference. */
+.motion-scope {
+  display: contents;
+}
+
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes invitation-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(32px) rotate(-11deg) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(-6deg) scale(1);
+  }
+}
+@keyframes orbit-arrive {
+  from {
+    opacity: 0;
+    scale: 0.88;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+@keyframes botanical-arrive {
+  from {
+    opacity: 0;
+    translate: 0 20px;
+  }
+  to {
+    opacity: 0.5;
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-copy > *,
+  .invitation-hero-content > * {
+    animation: enter-up 720ms cubic-bezier(0.2, 0.65, 0.3, 1) both;
+  }
+  .hero-copy > :nth-child(2) {
+    animation-delay: 80ms;
+  }
+  .hero-copy > :nth-child(3) {
+    animation-delay: 160ms;
+  }
+  .hero-copy > :nth-child(4) {
+    animation-delay: 240ms;
+  }
+  .hero-copy > :nth-child(5) {
+    animation-delay: 320ms;
+  }
+  .invitation-hero-content > :nth-child(2) {
+    animation-delay: 80ms;
+  }
+  .invitation-hero-content > :nth-child(3) {
+    animation-delay: 160ms;
+  }
+  .invitation-hero-content > :nth-child(4) {
+    animation-delay: 240ms;
+  }
+  .invitation-hero-content > :nth-child(5) {
+    animation-delay: 280ms;
+  }
+  .invitation-hero-content > :nth-child(6) {
+    animation-delay: 320ms;
+  }
+  .invitation-hero-content > :nth-child(7) {
+    animation-delay: 400ms;
+  }
+  .sample-invitation {
+    animation: invitation-arrive 1100ms cubic-bezier(0.2, 0.65, 0.3, 1) 100ms
+      both;
+  }
+  .art-orbit {
+    animation: orbit-arrive 1200ms ease-out both;
+  }
+  .floating-note {
+    animation: enter-up 800ms ease-out 450ms both;
+  }
+  .floating-rsvp {
+    animation: enter-up 800ms ease-out 650ms both;
+  }
+  .art-caption {
+    animation: enter-up 700ms ease-out 700ms both;
+  }
+  .invitation-botanical {
+    animation: botanical-arrive 1300ms ease-out 200ms both;
+  }
+
+  [data-motion='pending'] {
+    opacity: 0;
+    translate: 0 24px;
+  }
+  [data-motion='visible'] {
+    opacity: 1;
+    translate: 0 0;
+    transition:
+      opacity 650ms ease-out,
+      translate 650ms cubic-bezier(0.2, 0.65, 0.3, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  [data-reveal-delay='1'] {
+    --reveal-delay: 80ms;
+  }
+  [data-reveal-delay='2'] {
+    --reveal-delay: 160ms;
+  }
+  /* Keyboard users and anchor destinations must never wait for a reveal. */
+  [data-reveal]:focus-within,
+  [data-reveal]:target {
+    opacity: 1;
+    translate: none;
+    transition: none;
+  }
+  .button {
+    transition:
+      background-color 180ms,
+      color 180ms,
+      transform 180ms,
+      box-shadow 180ms;
+  }
+  .button:not(:disabled):active {
+    transform: translateY(1px) scale(0.98);
+  }
+  .button svg,
+  .sample-link svg,
+  .icon-link svg {
+    transition: transform 200ms ease;
+  }
+  .faq-list details[open] > p {
+    animation: enter-up 260ms ease-out;
+  }
+  .faq-list summary > span {
+    transition: transform 200ms ease;
+  }
+  .attendance-options label {
+    transition:
+      background-color 180ms,
+      border-color 180ms;
+  }
+  input:not([type='checkbox']),
+  textarea,
+  select {
+    transition:
+      border-color 180ms,
+      box-shadow 180ms;
+  }
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    box-shadow: 0 0 0 4px #d49d9d22;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .button:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px #18233b16;
+  }
+  .button:not(:disabled):hover:active {
+    transform: translateY(1px) scale(0.98);
+    box-shadow: none;
+  }
+  .button:hover svg,
+  .sample-link:hover svg,
+  .icon-link:hover svg {
+    transform: translate(2px, -2px);
+  }
+  .event-card {
+    transition:
+      transform 220ms ease,
+      box-shadow 220ms ease;
+  }
+  .event-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px #18233b0d;
+  }
+}

@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './motion.css';
 
 @theme inline {
   --color-ivory: #fff9f1;
