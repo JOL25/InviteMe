@@ -23,7 +23,9 @@ Consulta [las decisiones](docs/decisions.md) y [el progreso](docs/progress.md).
 
 ## Conexión y despliegue
 
-Sigue [la guía de despliegue](docs/deployment.md) para aplicar las migraciones, configurar Auth y Storage y desplegar en Vercel. El código no contiene credenciales. Las verificaciones conectadas y de concurrencia real quedan señaladas allí como pendientes.
+Sigue [la guía de despliegue](docs/deployment.md) para aplicar las migraciones, configurar Auth y Storage y desplegar en Vercel. El código no contiene credenciales.
+
+El proyecto exclusivo de Supabase ya está conectado en el entorno local. Se aprobaron 24 comprobaciones reales; consulta [el registro](docs/supabase-verification.md). Para repetirlas usa `npm run test:connected` con autorización explícita de datos desechables según la guía. Correo real, CAPTCHA y despliegue público siguen pendientes.
 
 ## Rutas principales
 

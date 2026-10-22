@@ -61,4 +61,21 @@ Antes de lanzar, completar estas verificaciones en un entorno de pruebas exclusi
 
 ## Estado de infraestructura
 
-No se ha creado ni modificado un proyecto remoto de Supabase. Falta la elección de organización, configuración de credenciales y validación del flujo conectado. No hay despliegue de producción realizado.
+InviteMe está activo en `JOL25's Org`, región `sa-east-1`, referencia `djmxfvmfglllgaojntuf`. Se pausó `questgame` por indicación del propietario para liberar un cupo gratuito. Las dos migraciones están aplicadas; sus nombres de archivo coinciden con las versiones registradas en Supabase.
+
+El entorno local está configurado en `.env.local` (excluido de Git), con clave pública, clave de servidor y secreto de rate limiting. Auth usa `http://localhost:3101` como Site URL y admite retornos exactos en `/auth/confirm` de localhost:3101 y localhost:3000. No se han enviado correos reales para las pruebas: se usaron cuentas desechables confirmadas mediante la API administrativa.
+
+Se aprobaron 24 comprobaciones conectadas, incluida concurrencia real por HTTP, SSR, Storage y CSV paginado. También se verificó manualmente el flujo desde la interfaz. Consulta [el registro de verificación](supabase-verification.md). Siguen pendientes el despliegue público HTTPS, el correo real y CAPTCHA.
+
+## Repetir las comprobaciones conectadas
+
+Arrancar `npm run dev -- --port 3101` con las variables locales completas. En otra terminal PowerShell:
+
+```powershell
+$env:INVITEME_ALLOW_REMOTE_TESTS='1'
+npm run test:connected
+```
+
+La prueba crea usuarios y eventos temporales en la base configurada y los elimina al finalizar; no usar este comando mientras se prueban límites de correo o CAPTCHA con claves reales. El origen HTTP de prueba debe ser local. Se usa una dirección reservada `192.0.2.x` en la cabecera del proxy local para aislar el límite de intentos; un despliegue público debe sobrescribir esa cabecera con su proxy de confianza.
+
+`npm run test:e2e` reconstruye localmente las pruebas públicas con las variables del backend vacías, aunque exista `.env.local`. En CI se reutiliza la compilación hecha sin credenciales. Después de estas pruebas, ejecutar `npm run build` antes de iniciar una versión de producción local conectada; el servidor de desarrollo conserva su entorno.

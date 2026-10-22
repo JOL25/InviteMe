@@ -56,12 +56,19 @@ GitHub Actions ejecuta formato, lint, TypeScript, 39 pruebas de unidades/Postgre
 
 La guía de despliegue enumera las comprobaciones conectadas pendientes y explica variables, migraciones, correo, límites y permisos de portadas.
 
+## 09 · Conexión real de Supabase
+
+Se creó InviteMe en JOL25's Org tras pausar questgame con autorización del propietario. Se aplicaron las migraciones, se configuraron las claves exclusivamente en `.env.local` y las URL locales de Auth.
+
+Pasaron 24 comprobaciones contra el servicio real: Auth, sesiones SSR, RLS, portadas privadas, publicación, dos solicitudes simultáneas al último cupo, idempotencia, cierre, despublicación, resumen y exportación de más de mil respuestas con autorización. Las cuentas y datos temporales se eliminaron.
+
+Se comprobó en navegador iniciar sesión, crear borrador, publicar, generar QR, confirmar asistencia, consultar respuestas y descargar un CSV con 1001 filas de datos. Se corrigió una omisión en CSV por diferencias de precisión/reloj: ahora la exportación toma el límite desde los datos de PostgreSQL. La prueba conectada reproduce este caso con una fecha adelantada.
+
+Asesores: ningún aviso de rendimiento; un aviso informativo de RLS sin políticas en `private.rsvp_limits`, intencionado porque solo el backend accede con `service_role` y no se concede uso del esquema a usuarios públicos.
+
 ### Pendiente para producción
 
-- Elección por el usuario de la organización de Supabase y revisión de los costes antes de crear infraestructura.
-- Creación del proyecto exclusivo, aplicación de migraciones y configuración de Auth, secretos y CAPTCHA.
-- Pruebas conectadas de registro, confirmación de correo, CRUD, Storage, exportación y QR.
-- Concurrencia real desde varias conexiones y asesores de seguridad/rendimiento de Supabase.
-- Despliegue HTTPS y aceptación final.
-
-Estas tareas no se dan por verificadas mediante PGlite ni mediante las pruebas públicas sin credenciales.
+- Despliegue en dominio HTTPS y traslado de las variables al entorno de hosting.
+- Configuración y prueba de correo real para confirmar registros (las pruebas de Auth no envían correo).
+- Configuración y prueba de CAPTCHA real.
+- Escaneo del QR desde otro dispositivo contra el dominio público y aceptación final.
