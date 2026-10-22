@@ -72,3 +72,11 @@ Asesores: ningún aviso de rendimiento; un aviso informativo de RLS sin polític
 - Configuración y prueba de correo real para confirmar registros (las pruebas de Auth no envían correo).
 - Configuración y prueba de CAPTCHA real.
 - Escaneo del QR desde otro dispositivo contra el dominio público y aceptación final.
+
+## 10 · Animaciones
+
+Entradas escalonadas en el hero, aparición de la tarjeta de invitación y elementos decorativos, revelado de secciones al desplazarse y efectos de interacción en botones, tarjetas, FAQ y campos. Las entradas son finitas y se ejecutan una vez; no hay bucles decorativos continuos ni bibliotecas nuevas.
+
+`ScrollReveal` mantiene visible el HTML del servidor y solo prepara elementos fuera del viewport después de hidratar. El contenido sigue disponible sin JavaScript o sin IntersectionObserver. La opción del sistema de movimiento reducido elimina las animaciones y descubre inmediatamente cualquier sección pendiente; foco y enlaces de ancla tampoco esperan al revelado.
+
+Comprobado: ESLint, TypeScript, 39 pruebas de unidades/SQL y 18 pruebas de navegador en escritorio y móvil. Las seis comprobaciones nuevas cubren revelado, cambio de preferencia en caliente, llegada al RSVP y contenido sin JavaScript.

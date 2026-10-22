@@ -49,7 +49,10 @@ test('no hay desbordamiento horizontal en páginas públicas', async ({
       ),
     ).toBe(true);
     await expect(page.locator('main')).toBeVisible();
-    if (path === '/' || path === '/ejemplo')
+    if (path === '/' || path === '/ejemplo') {
+      // A full-page still should show content that normally reveals on scroll.
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await expect(page.locator('[data-motion="pending"]')).toHaveCount(0);
       await page.screenshot({
         path: testInfo.outputPath(
           `${path === '/' ? 'landing' : 'invitation'}.png`,
@@ -57,6 +60,7 @@ test('no hay desbordamiento horizontal en páginas públicas', async ({
         fullPage: true,
         animations: 'disabled',
       });
+    }
   }
 });
 test('sin configuración no se permite entrar al panel ni registrar cuentas', async ({
