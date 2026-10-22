@@ -1,0 +1,26 @@
+@import 'tailwindcss';
+:root {
+  --ivory: #fff9f1;
+  --navy: #18233b;
+  --rose: #d49d9d;
+}
+body {
+  margin: 0;
+  background: var(--ivory);
+  color: var(--navy);
+  font-family: Arial, Helvetica, sans-serif;
+}
+a {
+  color: inherit;
+}
+.skip-link {
+  position: fixed;
+  top: -80px;
+  left: 16px;
+  z-index: 100;
+  padding: 12px;
+  background: white;
+}
+.skip-link:focus {
+  top: 12px;
+}
