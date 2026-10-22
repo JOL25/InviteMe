@@ -13,3 +13,9 @@ Comprobado: ESLint, TypeScript y compilación de producción. Dependencias fijad
 3. Diseño, invitación pública, portada y QR.
 4. RSVP, panel y CSV.
 5. Pruebas integradas, CI y guía de despliegue.
+
+## 02 · Datos y reglas de negocio
+
+Migración con RLS, bucket privado, función RSVP exclusiva para servidor, rate limiting persistente, idempotencia y bloqueo del evento. Validación de fechas, zonas, cupos y enlaces HTTPS. Tipos TypeScript alineados con el esquema.
+
+Comprobado: ESLint, TypeScript y 26 pruebas (16 de validación y 10 sobre PostgreSQL/PGlite). Las pruebas ejecutan la migración y comprueban RLS, Storage, cupos, reintentos, cierre, borradores y rate limiting. PGlite no sustituye una prueba de concurrencia con varias conexiones contra Supabase.
