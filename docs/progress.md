@@ -43,3 +43,9 @@ Comprobado: compilación de producción, revisión visual de capturas de escrito
 Invitación pública con proyección explícita de campos, noindex, fecha en la zona del evento, cuenta regresiva, mapa y formulario. Vista previa privada y muestra sin envíos. Portadas privadas, controles de formato y tamaño, colores con contraste validado. API con cuerpo limitado, validación de origen, CAPTCHA opcional y llamada exclusiva desde servidor a la función transaccional.
 
 Comprobado: ESLint, TypeScript, compilación de producción y pruebas locales. Validación conectada de CAPTCHA, Auth y Storage pendiente de Supabase real.
+
+## 07 · Respuestas, CSV y QR
+
+Resumen agregado con RLS, lista paginada y filtros de asistencia. Exportación autorizada desde servidor con paginación para evitar el límite de mil registros, UTF-8 y neutralización de fórmulas. Enlace copiable y QR descargable solo de eventos publicados.
+
+Comprobado: ESLint, TypeScript, compilación y 39 pruebas de unidades/base de datos. El resumen de un evento ajeno devuelve cero filas de datos sensibles. Pruebas de escaneo QR y descarga CSV contra el dominio real pendientes de infraestructura.

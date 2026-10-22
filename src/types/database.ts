@@ -65,6 +65,14 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      guest_summary: {
+        Args: { p_event_id: string };
+        Returns: {
+          yes_count: number;
+          no_count: number;
+          attendee_count: number;
+        }[];
+      };
       submit_rsvp: {
         Args: {
           p_slug: string;

@@ -196,6 +196,22 @@ describe('RSVP transaccional', () => {
       ),
     );
   });
+  it('los agregados no revelan respuestas de otro propietario', async () => {
+    await asUser(owner, async () => {
+      const result = await db.query<{ attendee_count: number }>(
+        'select * from public.guest_summary($1)',
+        [eventId],
+      );
+      expect(Number(result.rows[0].attendee_count)).toBe(3);
+    });
+    await asUser(stranger, async () => {
+      const result = await db.query<{ attendee_count: number }>(
+        'select * from public.guest_summary($1)',
+        [eventId],
+      );
+      expect(Number(result.rows[0].attendee_count)).toBe(0);
+    });
+  });
   it('respeta cerrado, borrador y límite de intentos', async () => {
     await db.query('update public.events set rsvp_open=false where id=$1', [
       eventId,

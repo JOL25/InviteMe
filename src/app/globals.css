@@ -1384,6 +1384,121 @@ input[type='checkbox'] {
   font-size: 30px;
   margin: 12px 0;
 }
+.share-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 28px;
+}
+.share-grid h2 {
+  font-size: 31px;
+}
+.qr-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+}
+.qr-panel img {
+  max-width: 100%;
+  height: auto;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-bottom: 30px;
+}
+.stats-grid article {
+  border: 1px solid #e4dfd6;
+  border-radius: 8px;
+  padding: 25px;
+  background: #fffdfa;
+}
+.stats-grid article > span {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  color: #646775;
+}
+.stats-grid strong {
+  display: block;
+  font:
+    48px Georgia,
+    serif;
+  margin: 14px 0;
+}
+.stats-grid p {
+  font-size: 11px;
+  color: #646775;
+}
+.guest-filter {
+  display: flex;
+  align-items: flex-end;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+.guest-filter select {
+  min-width: 230px;
+}
+.table-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+  background: #fffdfa;
+  border: 1px solid #e4dfd6;
+  border-radius: 8px;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12px;
+  text-align: left;
+}
+th {
+  font-weight: 500;
+  background: #f3eee5;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+th,
+td {
+  padding: 18px;
+  border-bottom: 1px solid #e8e0d5;
+  vertical-align: top;
+}
+td strong {
+  font-weight: 500;
+  display: block;
+}
+td small {
+  display: block;
+  color: #777;
+  margin-top: 4px;
+}
+.guest-note {
+  min-width: 170px;
+  max-width: 280px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+@media (max-width: 700px) {
+  .share-grid,
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .stats-grid {
+    gap: 12px;
+  }
+  .stats-grid article {
+    padding: 20px;
+  }
+  .guest-filter {
+    flex-wrap: wrap;
+  }
+  .guest-filter select {
+    min-width: 190px;
+  }
+}
 @media (max-width: 1000px) {
   .desktop-nav {
     display: none;
