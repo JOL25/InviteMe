@@ -19,3 +19,9 @@ Comprobado: ESLint, TypeScript y compilación de producción. Dependencias fijad
 Migración con RLS, bucket privado, función RSVP exclusiva para servidor, rate limiting persistente, idempotencia y bloqueo del evento. Validación de fechas, zonas, cupos y enlaces HTTPS. Tipos TypeScript alineados con el esquema.
 
 Comprobado: ESLint, TypeScript y 26 pruebas (16 de validación y 10 sobre PostgreSQL/PGlite). Las pruebas ejecutan la migración y comprueban RLS, Storage, cupos, reintentos, cierre, borradores y rate limiting. PGlite no sustituye una prueba de concurrencia con varias conexiones contra Supabase.
+
+## 03 · Autenticación
+
+Registro, login, confirmación de correo, cierre de sesión y refresco SSR. Verificación de identidad en servidor. Pantallas adaptables con estados de error y de servicio pendiente de configuración.
+
+Comprobado: ESLint, TypeScript, 26 pruebas y compilación de producción. Prueba real de correo y sesión pendiente de conectar el proyecto exclusivo de Supabase.
