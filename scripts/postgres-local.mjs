@@ -130,6 +130,8 @@ const envPath = path.resolve('.env.local');
 let env = (await exists(envPath)) ? await readFile(envPath, 'utf8') : '';
 // Preserve unrelated settings and old cloud credentials without displaying them.
 env = env.replace(/^DATABASE_URL=.*\r?\n?/gm, '');
+if (!/^NEXT_PUBLIC_SITE_URL=.+/m.test(env))
+  env += '\nNEXT_PUBLIC_SITE_URL=http://localhost:3101\n';
 if (!/^RSVP_RATE_LIMIT_SECRET=.+/m.test(env))
   env += `\nRSVP_RATE_LIMIT_SECRET=${randomBytes(32).toString('hex')}\n`;
 await writeFile(envPath, env.trimEnd() + `\nDATABASE_URL=${url}\n`, {

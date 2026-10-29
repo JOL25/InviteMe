@@ -16,7 +16,8 @@
     "db:start": "node scripts/postgres-local.mjs start",
     "db:stop": "node scripts/postgres-local.mjs stop",
     "db:status": "node scripts/postgres-local.mjs status",
-    "db:migrate": "node --env-file=.env.local scripts/migrate.mjs"
+    "db:migrate": "node --env-file=.env.local scripts/migrate.mjs",
+    "test:local": "node scripts/test-local.mjs"
   },
   "dependencies": {
     "date-fns": "4.4.0",

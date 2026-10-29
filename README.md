@@ -1,12 +1,18 @@
 # InviteMe
 
-Invitaciones digitales con confirmación de asistencia. Next.js App Router, TypeScript, Tailwind CSS y Supabase.
+Invitaciones digitales con confirmación de asistencia. Next.js App Router, TypeScript, Tailwind CSS y PostgreSQL local.
 
 ## Desarrollo
 
-Requiere Node.js 22 y npm. Instala con `npm ci`, copia `.env.example` a `.env.local` y ejecuta `npm run dev`.
+Requiere Node.js 22, npm y PostgreSQL 17. En este equipo:
 
-La landing funciona sin credenciales. Las funciones de cuenta, eventos y RSVP requieren configurar Supabase.
+```powershell
+npm ci
+npm run db:start
+npm run dev -- --port 3101
+```
+
+Abre http://localhost:3101. `db:start` prepara una instancia exclusiva en el puerto 55432 y configura la conexión sin modificar las bases de otros proyectos. Registra una cuenta nueva en `/register`; no se necesita Supabase ni confirmación por correo. No borres `.local/`, donde se conservan los datos.
 
 ## Comprobaciones
 
@@ -14,6 +20,8 @@ La landing funciona sin credenciales. Las funciones de cuenta, eventos y RSVP re
 - `npm run build`: compilación de producción.
 - `npm run test:e2e`: pruebas de navegador (requiere `npx playwright install chromium`).
 - `npm run format:check`: formato.
+- `npm run test:local`: flujo completo contra una base PostgreSQL temporal.
+- `npm run db:status` / `npm run db:stop`: consultar o detener la instancia local.
 
 ## Alcance
 
@@ -23,9 +31,9 @@ Consulta [las decisiones](docs/decisions.md) y [el progreso](docs/progress.md).
 
 ## Conexión y despliegue
 
-Sigue [la guía de despliegue](docs/deployment.md) para aplicar las migraciones, configurar Auth y Storage y desplegar en Vercel. El código no contiene credenciales.
+Sigue [la guía local y de despliegue](docs/deployment.md) para usar otra instancia, aplicar migraciones, respaldar datos y configurar el sitio. Las credenciales no se versionan.
 
-El proyecto exclusivo de Supabase ya está conectado en el entorno local. Se aprobaron 24 comprobaciones reales; consulta [el registro](docs/supabase-verification.md). Para repetirlas usa `npm run test:connected` con autorización explícita de datos desechables según la guía. Correo real, CAPTCHA y despliegue público siguen pendientes.
+Supabase continúa pausado. Por decisión del propietario, la base local empieza vacía y no contiene cuentas, eventos ni respuestas del servicio anterior. Los documentos de verificación de Supabase son históricos.
 
 ## Rutas principales
 
@@ -33,4 +41,4 @@ El proyecto exclusivo de Supabase ya está conectado en el entorno local. Se apr
 
 ## Seguridad de dependencias
 
-`npm audit --omit=dev` no reporta vulnerabilidades en la comprobación inicial. La auditoría completa señala cinco avisos de desarrollo por la cadena `eslint-config-next → fast-glob → micromatch → braces`. La solución automática propuesta implica retroceder el framework y no se aplica. Revisar estos avisos al actualizar las herramientas. ESLint 9 se mantiene por compatibilidad declarada de los plugins de Next.js, y TypeScript 5.9 por compatibilidad con el analizador.
+Dependencias fijadas y lockfile versionado. Ejecuta `npm audit --omit=dev` después de actualizarlas.

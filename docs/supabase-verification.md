@@ -1,3 +1,5 @@
+> Registro histórico: Supabase está pausado y fue reemplazado por PostgreSQL local el 29/10/2026. No ejecutar estas instrucciones contra el backend actual. Ver [la guía vigente](deployment.md).
+
 # Verificación de Supabase · 22 de octubre de 2026
 
 Proyecto [InviteMe](https://supabase.com/dashboard/project/djmxfvmfglllgaojntuf), organización JOL25's Org, región São Paulo. Plan gratuito, coste de creación cotizado en USD 0/mes. `questgame` quedó pausado a petición del propietario; `Petshop-Backend` no se utilizó para InviteMe.
