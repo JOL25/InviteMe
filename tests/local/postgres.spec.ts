@@ -121,20 +121,63 @@ test('cuentas, eventos, portada privada, publicación, RSVP, CSV y aislamiento',
   const publicPage = await request.get(`/i/${event.slug}`);
   expect(publicPage.status()).toBe(200);
   expect(await publicPage.text()).not.toContain(email);
+  await page.goto(`/dashboard/events/${event.id}/share`);
+  await expect(page.getByLabel('Enlace de tu invitación')).toHaveValue(
+    `http://localhost:3102/i/${event.slug}`,
+  );
+  await expect(
+    page.getByRole('img', { name: `Código QR de ${event.title}` }),
+  ).toBeVisible();
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('link', { name: 'Descargar QR', exact: true }).click();
+  expect((await downloadPromise).suggestedFilename()).toBe(
+    `${event.slug}-qr.png`,
+  );
+  const guest = await browser.newContext({ baseURL: 'http://localhost:3102' });
+  let idempotencyKey: string;
+  try {
+    const invitation = await guest.newPage();
+    await invitation.goto(`/i/${event.slug}`);
+    await invitation
+      .getByRole('link', { name: 'Confirmar asistencia', exact: false })
+      .click();
+    await invitation
+      .getByLabel('Tu nombre', { exact: true })
+      .fill('María local');
+    await invitation
+      .getByLabel('Personas que asistirán, incluyéndote')
+      .selectOption('2');
+    await invitation
+      .getByRole('button', { name: 'Enviar mi respuesta', exact: true })
+      .click();
+    await expect(invitation).toHaveURL(
+      `http://localhost:3102/i/${event.slug}/thanks?confirmed=1`,
+    );
+    await expect(
+      invitation.getByText('¡Te esperamos! Confirmaste para 2 personas.', {
+        exact: true,
+      }),
+    ).toBeVisible();
+    idempotencyKey = (
+      await pool.query('select idempotency_key from rsvps where event_id=$1', [
+        event.id,
+      ])
+    ).rows[0].idempotency_key;
+  } finally {
+    await guest.close();
+  }
   const data = {
     slug: event.slug,
     guestName: 'María local',
     attendance: true,
     partySize: 2,
-    idempotencyKey: randomUUID(),
+    idempotencyKey,
   };
   const submit = (body: object) =>
     request.post('/api/rsvp', {
       headers: { Origin: 'http://localhost:3102' },
       data: body,
     });
-  const first = await submit(data);
-  expect(first.status()).toBe(201);
   expect((await submit(data)).status()).toBe(200);
   const concurrent = await Promise.all(
     [1, 2].map(() =>
