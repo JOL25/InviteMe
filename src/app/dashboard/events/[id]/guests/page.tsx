@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Download, Users } from 'lucide-react';
 import { formatInTimeZone } from 'date-fns-tz';
+import { ownedReplies } from '@/lib/event-store';
 import { ownedEvent } from '@/lib/events';
 export default async function Guests({
   params,
@@ -10,33 +11,15 @@ export default async function Guests({
   searchParams: Promise<{ page?: string; attendance?: string }>;
 }) {
   const { id } = await params;
-  const { event, supabase } = await ownedEvent(id);
+  const { event, user } = await ownedEvent(id);
   const { page: rawPage, attendance = 'all' } = await searchParams;
   const page = Math.max(1, Math.min(10000, Math.floor(Number(rawPage) || 1)));
-  const { data: summaries, error: summaryError } = await supabase.rpc(
-    'guest_summary',
-    { p_event_id: id },
+  const { rows, count, summary } = await ownedReplies(
+    id,
+    user.id,
+    attendance,
+    page,
   );
-  if (summaryError) throw new Error('No pudimos cargar el resumen.');
-  const summary = summaries?.[0] ?? {
-    yes_count: 0,
-    no_count: 0,
-    attendee_count: 0,
-  };
-  let query = supabase
-    .from('rsvps')
-    .select('*', { count: 'exact' })
-    .eq('event_id', id)
-    .order('created_at', { ascending: false })
-    .order('id');
-  if (attendance === 'yes' || attendance === 'no')
-    query = query.eq('attendance', attendance === 'yes');
-  const {
-    data: rows,
-    count,
-    error,
-  } = await query.range((page - 1) * 50, page * 50 - 1);
-  if (error) throw new Error('No pudimos cargar las respuestas.');
   return (
     <>
       <Link className="back-link" href={`/dashboard/events/${id}/edit`}>

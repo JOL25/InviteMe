@@ -15,9 +15,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
     env: {
-      NEXT_PUBLIC_SUPABASE_URL: '',
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: '',
-      SUPABASE_SECRET_KEY: '',
+      DATABASE_URL: '',
     },
   },
   projects: [

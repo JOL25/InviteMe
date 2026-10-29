@@ -1,8 +1,8 @@
 import { createHmac } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { rsvpSchema } from '@/lib/validators';
-import { createAdminClient } from '@/lib/supabase/admin';
-import { hasSupabase, siteUrl } from '@/lib/env';
+import { query } from '@/lib/db';
+import { hasDatabase, siteUrl } from '@/lib/env';
 import { limitedJson } from '@/lib/http';
 export const runtime = 'nodejs';
 function reply(body: object, status: number) {
@@ -31,12 +31,7 @@ export async function POST(request: Request) {
     return reply({ error: parsed.error.issues[0].message }, 400);
   const input = parsed.data;
   const salt = process.env.RSVP_RATE_LIMIT_SECRET;
-  if (
-    !hasSupabase() ||
-    !process.env.SUPABASE_SECRET_KEY ||
-    !salt ||
-    salt.length < 32
-  )
+  if (!hasDatabase() || !salt || salt.length < 32)
     return reply(
       { error: 'Las confirmaciones no están disponibles en este momento.' },
       503,
@@ -87,22 +82,20 @@ export async function POST(request: Request) {
     'local-shared';
   const hash = createHmac('sha256', salt).update(address).digest('hex');
   try {
-    const supabase = createAdminClient();
-    const { data, error } = await supabase.rpc('submit_rsvp', {
-      p_slug: input.slug,
-      p_guest_name: input.guestName,
-      p_guest_email: input.guestEmail,
-      p_attendance: input.attendance,
-      p_party_size: input.partySize,
-      p_note: input.note,
-      p_key: input.idempotencyKey,
-      p_client_hash: hash,
-    });
-    if (error || !data || typeof data !== 'object' || Array.isArray(data))
-      return reply(
-        { error: 'No pudimos guardar tu respuesta. Inténtalo de nuevo.' },
-        503,
-      );
+    const { rows } = await query<{
+      result: { status: number; id?: string; error?: string };
+    }>('select public.submit_rsvp($1,$2,$3,$4,$5,$6,$7,$8) result', [
+      input.slug,
+      input.guestName,
+      input.guestEmail,
+      input.attendance,
+      input.partySize,
+      input.note,
+      input.idempotencyKey,
+      hash,
+    ]);
+    const data = rows[0]?.result;
+    if (!data) return reply({ error: 'No pudimos guardar tu respuesta.' }, 503);
     const status = Number(data.status);
     if (![200, 201, 400, 404, 409, 429].includes(status))
       return reply({ error: 'No pudimos guardar tu respuesta.' }, 503);

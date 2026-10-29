@@ -1,7 +1,8 @@
 import 'server-only';
 import { cache } from 'react';
-import { hasSupabase } from '@/lib/env';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { hasDatabase } from '@/lib/env';
+import { query } from '@/lib/db';
+import { coverUrl } from '@/lib/event-store';
 import type { Event, PublicEvent } from '@/types/database';
 export function projectPublicEvent(
   event: Pick<
@@ -39,30 +40,13 @@ export function projectPublicEvent(
 }
 export const getPublicEvent = cache(
   async (slug: string): Promise<PublicEvent | null> => {
-    if (
-      !hasSupabase() ||
-      !process.env.SUPABASE_SECRET_KEY ||
-      !/^[a-z0-9-]{3,150}$/.test(slug)
-    )
-      return null;
-    const supabase = createAdminClient();
-    const { data, error } = await supabase
-      .from('events')
-      .select(
-        'slug,title,category,timezone,starts_at,venue_name,venue_address,map_url,rsvp_open,primary_color,accent_color,message,cover_path',
-      )
-      .eq('slug', slug)
-      .not('published_at', 'is', null)
-      .maybeSingle();
-    if (error) throw new Error('No pudimos cargar la invitación.');
-    if (!data) return null;
-    let cover: string | null = null;
-    if (data.cover_path) {
-      const { data: image } = await supabase.storage
-        .from('covers')
-        .createSignedUrl(data.cover_path, 300);
-      cover = image?.signedUrl ?? null;
-    }
-    return projectPublicEvent(data, cover);
+    if (!hasDatabase() || !/^[a-z0-9-]{3,150}$/.test(slug)) return null;
+    const { rows } = await query<Event>(
+      `select slug,title,category,timezone,starts_at,venue_name,venue_address,map_url,rsvp_open,primary_color,accent_color,message,cover_path
+       from events where slug=$1 and published_at is not null`,
+      [slug],
+    );
+    const data = rows[0];
+    return data ? projectPublicEvent(data, coverUrl(data.cover_path)) : null;
   },
 );

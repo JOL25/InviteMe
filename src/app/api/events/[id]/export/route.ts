@@ -1,48 +1,39 @@
 import { z } from 'zod';
-import { hasSupabase } from '@/lib/env';
-import { createClient } from '@/lib/supabase/server';
+import { hasDatabase } from '@/lib/env';
+import { currentUser } from '@/lib/auth';
+import { findOwnedEvent } from '@/lib/event-store';
+import { query } from '@/lib/db';
+import type { RSVP } from '@/types/database';
 import { csvHeader, rsvpCsvRow } from '@/lib/csv';
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  if (!hasSupabase())
+  if (!hasDatabase())
     return Response.json({ error: 'Servicio no disponible.' }, { status: 503 });
   if (!z.uuid().safeParse(id).success)
     return Response.json({ error: 'Evento no disponible.' }, { status: 404 });
-  const supabase = await createClient();
-  const { data: auth, error: authError } = await supabase.auth.getUser();
-  if (authError || !auth.user)
-    return Response.json({ error: 'Inicia sesión.' }, { status: 401 });
-  const { data: event, error } = await supabase
-    .from('events')
-    .select('id,slug')
-    .eq('id', id)
-    .eq('owner_id', auth.user.id)
-    .maybeSingle();
-  if (error)
+  const user = await currentUser();
+  if (!user) return Response.json({ error: 'Inicia sesión.' }, { status: 401 });
+  let event;
+  let cutoff: string | undefined;
+  try {
+    event = await findOwnedEvent(id, user.id);
+    if (!event)
+      return Response.json({ error: 'Evento no disponible.' }, { status: 404 });
+    cutoff = (
+      await query<{ created_at: string }>(
+        `select r.created_at from rsvps r join events e on e.id=r.event_id where r.event_id=$1 and e.owner_id=$2 order by r.created_at desc limit 1`,
+        [id, user.id],
+      )
+    ).rows[0]?.created_at;
+  } catch {
     return Response.json(
       { error: 'No pudimos preparar la exportación.' },
       { status: 503 },
     );
-  if (!event)
-    return Response.json({ error: 'Evento no disponible.' }, { status: 404 });
-  // Use the latest committed database timestamp, not the application clock:
-  // millisecond precision or clock skew must not omit just-created replies.
-  const { data: latest, error: latestError } = await supabase
-    .from('rsvps')
-    .select('created_at')
-    .eq('event_id', id)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (latestError)
-    return Response.json(
-      { error: 'No pudimos preparar la exportación.' },
-      { status: 503 },
-    );
-  const cutoff = latest?.created_at;
+  }
   const encoder = new TextEncoder();
   let page = 0;
   const stream = new ReadableStream({
@@ -55,20 +46,11 @@ export async function GET(
             return;
           }
         }
-        const { data, error: readError } = await supabase
-          .from('rsvps')
-          .select('*')
-          .eq('event_id', id)
-          .lte('created_at', cutoff)
-          .order('created_at')
-          .order('id')
-          .range(page * 1000, (page + 1) * 1000 - 1);
-        if (readError) {
-          controller.error(
-            new Error('Exportación interrumpida. Vuelve a intentarlo.'),
-          );
-          return;
-        }
+        const { rows: data } = await query<RSVP>(
+          `select r.* from rsvps r join events e on e.id=r.event_id where r.event_id=$1 and e.owner_id=$2 and r.created_at <= $3
+           order by r.created_at,r.id limit 1000 offset $4`,
+          [id, user.id, cutoff, page * 1000],
+        );
         controller.enqueue(
           encoder.encode((data ?? []).map(rsvpCsvRow).join('')),
         );

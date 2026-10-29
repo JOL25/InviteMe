@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Plus, ArrowUpRight, CalendarDays } from 'lucide-react';
 import { formatInTimeZone } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
+import { listOwnedEvents } from '@/lib/event-store';
 import { requireUser } from '@/lib/auth';
 import { categoryLabels } from '@/lib/validators';
 export default async function Dashboard({
@@ -11,19 +12,9 @@ export default async function Dashboard({
 }) {
   const { q = '', page: rawPage } = await searchParams;
   const page = Math.max(1, Math.min(10000, Math.floor(Number(rawPage) || 1)));
-  const { supabase, user } = await requireUser();
-  let query = supabase
-    .from('events')
-    .select('*', { count: 'exact' })
-    .eq('owner_id', user.id)
-    .order('created_at', { ascending: false });
+  const { user } = await requireUser();
   const search = q.slice(0, 100).replace(/[%_\\]/g, '');
-  if (search) query = query.ilike('title', `%${search}%`);
-  const { data, count, error } = await query.range(
-    (page - 1) * 12,
-    page * 12 - 1,
-  );
-  if (error) throw new Error('No pudimos cargar tus eventos.');
+  const { data, count } = await listOwnedEvents(user.id, search, page);
   return (
     <>
       <div className="page-heading">

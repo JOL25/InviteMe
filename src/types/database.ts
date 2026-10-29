@@ -38,59 +38,6 @@ export type RSVP = {
   idempotency_key: string;
   created_at: string;
 };
-type Table<Row, Insert, Update> = {
-  Row: Row;
-  Insert: Insert;
-  Update: Update;
-  Relationships: [];
-};
-export type Database = {
-  public: {
-    Tables: {
-      events: Table<
-        Event,
-        Pick<
-          Event,
-          'owner_id' | 'slug' | 'title' | 'starts_at' | 'venue_name' | 'message'
-        > &
-          Partial<Event>,
-        Partial<Event>
-      >;
-      rsvps: Table<
-        RSVP,
-        Omit<RSVP, 'id' | 'created_at'> &
-          Partial<Pick<RSVP, 'id' | 'created_at'>>,
-        Partial<RSVP>
-      >;
-    };
-    Views: Record<string, never>;
-    Functions: {
-      guest_summary: {
-        Args: { p_event_id: string };
-        Returns: {
-          yes_count: number;
-          no_count: number;
-          attendee_count: number;
-        }[];
-      };
-      submit_rsvp: {
-        Args: {
-          p_slug: string;
-          p_guest_name: string;
-          p_guest_email: string;
-          p_attendance: boolean;
-          p_party_size: number;
-          p_note: string;
-          p_key: string;
-          p_client_hash: string;
-        };
-        Returns: Json;
-      };
-    };
-    Enums: Record<string, never>;
-    CompositeTypes: Record<string, never>;
-  };
-};
 export type PublicEvent = Pick<
   Event,
   | 'slug'
