@@ -1,11 +1,12 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
-import { database, query } from '@/lib/db';
+import { forOwner, ownerTransaction } from '@/lib/db';
 import type { Event, RSVP } from '@/types/database';
 import type { eventValues } from '@/lib/validators';
 
 // All private operations take the authenticated owner, never a form owner_id.
 export async function findOwnedEvent(id: string, ownerId: string) {
+  const query = forOwner(ownerId);
   return (
     (
       await query<Event>('select * from events where id=$1 and owner_id=$2', [
@@ -20,6 +21,7 @@ export async function listOwnedEvents(
   search: string,
   page: number,
 ) {
+  const query = forOwner(ownerId);
   const values = [ownerId, `%${search}%`];
   const { rows } = await query<Event>(
     'select * from events where owner_id=$1 and title ilike $2 order by created_at desc,id limit 12 offset $3',
@@ -39,6 +41,7 @@ export async function writeEvent(
   data: ReturnType<typeof eventValues>,
   slug: string,
 ) {
+  const query = forOwner(ownerId);
   const columns = [
     'title',
     'category',
@@ -74,6 +77,7 @@ export async function setPublication(
   ownerId: string,
   publish: boolean,
 ) {
+  const query = forOwner(ownerId);
   return (
     (
       await query(
@@ -84,6 +88,7 @@ export async function setPublication(
   );
 }
 export async function removeEvent(id: string, ownerId: string) {
+  const query = forOwner(ownerId);
   return (
     (
       await query(
@@ -99,6 +104,7 @@ export async function ownedReplies(
   attendance: string,
   page: number,
 ) {
+  const query = forOwner(ownerId);
   const filter =
     attendance === 'yes' ? true : attendance === 'no' ? false : null;
   const args = [id, ownerId, filter];
@@ -140,17 +146,12 @@ export async function storeCover(
   bytes: Buffer,
   ext: 'jpg' | 'png' | 'webp',
 ) {
-  const client = await database().connect();
-  try {
-    await client.query('begin');
+  return ownerTransaction(ownerId, async (client) => {
     const event = await client.query(
       'select id from events where id=$1 and owner_id=$2 for update',
       [id, ownerId],
     );
-    if (!event.rowCount) {
-      await client.query('rollback');
-      return false;
-    }
+    if (!event.rowCount) return false;
     const path = `${ownerId}/${id}/${randomUUID()}.${ext}`;
     await client.query(
       `insert into covers(event_id,path,content_type,bytes) values($1,$2,$3,$4)
@@ -161,12 +162,6 @@ export async function storeCover(
       'update events set cover_path=$1 where id=$2 and owner_id=$3',
       [path, id, ownerId],
     );
-    await client.query('commit');
     return true;
-  } catch (error) {
-    await client.query('rollback');
-    throw error;
-  } finally {
-    client.release();
-  }
+  });
 }

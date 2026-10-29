@@ -102,3 +102,9 @@ Se automatizan los dos escenarios conectados en `npm run test:local`: base y rol
 Resultado final local: formato correcto; lint y tipos aprobados; 34 pruebas unitarias/SQL, 18 pruebas públicas de escritorio/móvil y 2 escenarios completos conectados aprobados (54 pruebas en total); compilación de producción correcta y `npm audit --omit=dev` sin vulnerabilidades. La instancia local se detuvo y reinició conservando el esquema, sin tocar PostgreSQL de otros proyectos. La base de uso diario quedó vacía y el usuario de aplicación no es superusuario.
 
 Se normalizaron los saltos de línea de `.env.example` para evitar caracteres CR duplicados en Windows. Verificación: `git diff --check` y comprobación de formato.
+
+## 14. RLS y rol restringido (29/10/2026)
+
+Migración aditiva `002_runtime_rls.sql`: RLS en eventos, respuestas y portadas; tablas de cuentas, sesiones, límites y migraciones sin acceso directo del runtime. Rol `inviteme_runtime` separado del dueño `inviteme_app`, sin superusuario, BYPASSRLS ni pertenencia al dueño. La web rechaza una conexión que eluda RLS. Cada consulta privada configura identidad autenticada mediante SET LOCAL dentro de una transacción; COMMIT y ROLLBACK limpian el contexto del pool. Las funciones privilegiadas de autenticación, lectura pública y RSVP tienen search_path vacío, nombres cualificados y permisos enumerados. Las credenciales de migración quedan en `.env.database`, fuera de las variables que carga Next.js.
+
+Verificado: 41 pruebas unitarias/SQL, incluidas siete nuevas pruebas de RLS sin filtros de propietario. Tres escenarios conectados aprobados con PostgreSQL 17: flujo completo existente, errores/límites de autenticación y comprobación directa de RLS y limpieza de contexto tras éxito y error. La base de uso diario se actualizó sin borrar datos. El propietario prefiere seguir probando en su PC; publicación HTTPS aplazada.

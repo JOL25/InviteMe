@@ -8,6 +8,9 @@ const stranger = '22222222-2222-4222-8222-222222222222';
 const eventId = '33333333-3333-4333-8333-333333333333';
 beforeAll(async () => {
   db = new PGlite();
+  await db.exec(
+    'create table app_migrations(name text primary key,checksum text not null,applied_at timestamptz default now())',
+  );
   for (const file of readdirSync('database/migrations')
     .filter((f) => f.endsWith('.sql'))
     .sort()) {

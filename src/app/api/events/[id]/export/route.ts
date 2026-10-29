@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { hasDatabase } from '@/lib/env';
 import { currentUser } from '@/lib/auth';
 import { findOwnedEvent } from '@/lib/event-store';
-import { query } from '@/lib/db';
+import { forOwner } from '@/lib/db';
 import type { RSVP } from '@/types/database';
 import { csvHeader, rsvpCsvRow } from '@/lib/csv';
 export async function GET(
@@ -16,6 +16,7 @@ export async function GET(
     return Response.json({ error: 'Evento no disponible.' }, { status: 404 });
   const user = await currentUser();
   if (!user) return Response.json({ error: 'Inicia sesión.' }, { status: 401 });
+  const query = forOwner(user.id);
   let event;
   let cutoff: string | undefined;
   try {

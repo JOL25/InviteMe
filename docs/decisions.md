@@ -6,7 +6,7 @@ Se parte de la guía de desarrollo revisada el 22 de octubre de 2026. El MVP usa
 
 ## Seguridad y datos
 
-- Autenticación SSR mediante cookies. Cada operación privada verifica la identidad en servidor; las consultas privadas exigen el propietario autenticado.
+- Autenticación SSR mediante cookies. Cada operación privada verifica la identidad en servidor; las consultas privadas exigen el propietario autenticado y las políticas RLS vuelven a limitar las filas en PostgreSQL. La aplicación usa un rol distinto al dueño de las tablas, sin BYPASSRLS.
 - Invitaciones públicas mediante una proyección explícita desde servidor. Nunca se entrega `owner_id`, datos de invitados ni credenciales secretas.
 - La escritura pública de RSVP pasa por una API y una función SQL transaccional, invocada solo desde servidor. Bloqueo del evento para serializar cambios de capacidad y reservas.
 - Una clave UUID de idempotencia evita duplicados por reintento. No pretende identificar a una persona: con enlaces abiertos, una misma persona puede responder desde varios dispositivos.

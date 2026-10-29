@@ -13,20 +13,14 @@ export const currentUser = cache(async () => {
   const token = (await cookies()).get(sessionCookie)?.value;
   if (!token || !/^[a-f0-9]{64}$/.test(token)) return null;
   const { rows } = await query<{ id: string; email: string }>(
-    `select u.id,u.email from app_users u join app_sessions s on s.user_id=u.id
-     where s.token_hash=$1 and s.expires_at>now()`,
+    'select * from private.session_user($1)',
     [tokenHash(token)],
   );
   return rows[0] ?? null;
 });
 export async function createSession(userId: string) {
   const token = randomBytes(32).toString('hex');
-  await query('delete from app_sessions where expires_at <= now()');
-  await query(
-    `insert into app_sessions(token_hash,user_id,expires_at)
-    values($1,$2,now()+interval '7 days')`,
-    [tokenHash(token), userId],
-  );
+  await query('select private.open_session($1,$2)', [userId, tokenHash(token)]);
   (await cookies()).set(sessionCookie, token, {
     httpOnly: true,
     secure: new URL(siteUrl()).protocol === 'https:',
@@ -39,9 +33,7 @@ export async function destroySession() {
   const jar = await cookies();
   const token = jar.get(sessionCookie)?.value;
   if (token && hasDatabase())
-    await query('delete from app_sessions where token_hash=$1', [
-      tokenHash(token),
-    ]);
+    await query('select private.close_session($1)', [tokenHash(token)]);
   jar.delete(sessionCookie);
 }
 export async function requireUser() {

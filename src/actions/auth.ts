@@ -24,26 +24,22 @@ export async function authenticate(
   try {
     const key = createHash('sha256').update(input.data.email).digest('hex');
     const { rows: limits } = await query<{ attempts: number }>(
-      `insert into auth_limits(key,window_start) values($1,date_bin(interval '10 minutes',now(),timestamptz '2000-01-01'))
-       on conflict(key,window_start) do update set attempts=auth_limits.attempts+1 returning attempts`,
+      'select private.auth_attempt($1) attempts',
       [key],
     );
     if (limits[0].attempts > 10)
       return { error: 'Demasiados intentos. Espera unos minutos.' };
-    await query(
-      "delete from auth_limits where window_start < now()-interval '1 day'",
-    );
     let userId: string;
     if (mode === 'register') {
       const hash = await hashPassword(input.data.password);
       const { rows } = await query<{ id: string }>(
-        'insert into app_users(email,password_hash) values($1,$2) returning id',
+        'select private.register_user($1,$2) id',
         [input.data.email, hash],
       );
       userId = rows[0].id;
     } else {
       const { rows } = await query<{ id: string; password_hash: string }>(
-        'select id,password_hash from app_users where email=$1',
+        'select * from private.login_user($1)',
         [input.data.email],
       );
       const hash =

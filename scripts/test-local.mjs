@@ -12,19 +12,27 @@ if (!adminUrl) {
 }
 const name = `inviteme_test_${randomBytes(8).toString('hex')}`;
 const runtimePassword = randomBytes(32).toString('hex');
+const ownerPassword = randomBytes(32).toString('hex');
+const runtimeRole = `${name}_app`;
 const admin = new pg.Client({ connectionString: adminUrl });
 await admin.connect();
 let exitCode = 1;
 try {
   await admin.query(
-    `create role ${name} login nosuperuser nocreatedb nocreaterole password '${runtimePassword}'`,
+    `create role ${name} login nosuperuser nocreatedb nocreaterole password '${ownerPassword}'`,
+  );
+  await admin.query(
+    `create role ${runtimeRole} login nosuperuser nocreatedb nocreaterole nobypassrls password '${runtimePassword}'`,
   );
   await admin.query(`create database ${name} owner ${name}`);
   const url = new URL(adminUrl);
   url.pathname = `/${name}`;
   url.username = name;
+  url.password = ownerPassword;
+  const migrationUrl = url.toString();
+  await migrate(migrationUrl, runtimeRole);
+  url.username = runtimeRole;
   url.password = runtimePassword;
-  await migrate(url.toString());
   exitCode = await new Promise((resolve, reject) => {
     const child = spawn(
       process.execPath,
@@ -40,6 +48,7 @@ try {
         env: {
           ...process.env,
           DATABASE_URL: url.toString(),
+          DATABASE_MIGRATION_URL: migrationUrl,
           RSVP_RATE_LIMIT_SECRET: randomBytes(32).toString('hex'),
           NEXT_PUBLIC_SITE_URL: 'http://localhost:3102',
           TURNSTILE_SECRET_KEY: '',
@@ -53,6 +62,7 @@ try {
 } finally {
   await admin.query(`drop database if exists ${name} with (force)`);
   await admin.query(`drop role if exists ${name}`);
+  await admin.query(`drop role if exists ${runtimeRole}`);
   await admin.end();
 }
 process.exitCode = exitCode;

@@ -68,6 +68,12 @@ else {
     flag: 'wx',
   });
 }
+if (!credentials.runtime) {
+  credentials.runtime = randomBytes(32).toString('hex');
+  await writeFile(credentialsPath, JSON.stringify(credentials), {
+    mode: 0o600,
+  });
+}
 if (!(await exists(path.join(data, 'PG_VERSION')))) {
   const pw = path.join(local, 'init-password');
   await writeFile(pw, credentials.admin, { mode: 0o600 });
@@ -122,22 +128,38 @@ try {
       .rowCount
   )
     await admin.query('create database inviteme owner inviteme_app');
+  if (
+    !(
+      await admin.query(
+        "select 1 from pg_roles where rolname='inviteme_runtime'",
+      )
+    ).rowCount
+  )
+    await admin.query(
+      `create role inviteme_runtime login nosuperuser nocreatedb nocreaterole nobypassrls password '${credentials.runtime}'`,
+    );
 } finally {
   await admin.end();
 }
 const url = `postgresql://inviteme_app:${credentials.app}@127.0.0.1:${port}/inviteme`;
+const runtimeUrl = `postgresql://inviteme_runtime:${credentials.runtime}@127.0.0.1:${port}/inviteme`;
 const envPath = path.resolve('.env.local');
 let env = (await exists(envPath)) ? await readFile(envPath, 'utf8') : '';
 // Preserve unrelated settings and old cloud credentials without displaying them.
-env = env.replace(/^DATABASE_URL=.*\r?\n?/gm, '');
+env = env.replace(/^DATABASE_(?:MIGRATION_)?URL=.*\r?\n?/gm, '');
 if (!/^NEXT_PUBLIC_SITE_URL=.+/m.test(env))
   env += '\nNEXT_PUBLIC_SITE_URL=http://localhost:3101\n';
 if (!/^RSVP_RATE_LIMIT_SECRET=.+/m.test(env))
   env += `\nRSVP_RATE_LIMIT_SECRET=${randomBytes(32).toString('hex')}\n`;
-await writeFile(envPath, env.trimEnd() + `\nDATABASE_URL=${url}\n`, {
+await migrate(url, 'inviteme_runtime');
+await writeFile(envPath, env.trimEnd() + `\nDATABASE_URL=${runtimeUrl}\n`, {
   mode: 0o600,
 });
-await migrate(url);
+await writeFile(
+  path.resolve('.env.database'),
+  `DATABASE_MIGRATION_URL=${url}\n`,
+  { mode: 0o600 },
+);
 console.log(
   `InviteMe listo en PostgreSQL local (127.0.0.1:${port}). Credenciales guardadas en archivos ignorados por Git.`,
 );

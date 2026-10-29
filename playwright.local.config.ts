@@ -6,6 +6,7 @@ export default defineConfig({
   reporter: 'list',
   use: { baseURL: 'http://localhost:3102', trace: 'retain-on-failure' },
   webServer: {
+    env: { DATABASE_MIGRATION_URL: '' },
     command:
       'npm run build && npm run start -- --hostname 127.0.0.1 --port 3102',
     url: 'http://localhost:3102',

@@ -1,8 +1,13 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import pg from 'pg';
+import { grantRuntime } from './runtime-grants.mjs';
 
-export async function migrate(connectionString = process.env.DATABASE_URL) {
+export async function migrate(
+  connectionString = process.env.DATABASE_MIGRATION_URL ||
+    process.env.DATABASE_URL,
+  runtimeRole,
+) {
   if (!connectionString)
     throw new Error('Configura DATABASE_URL antes de migrar.');
   const client = new pg.Client({ connectionString });
@@ -41,6 +46,12 @@ export async function migrate(connectionString = process.env.DATABASE_URL) {
       );
       console.log(`Aplicada: ${name}`);
     }
+    const role =
+      runtimeRole ||
+      (process.env.DATABASE_URL
+        ? decodeURIComponent(new URL(process.env.DATABASE_URL).username)
+        : undefined);
+    if (role) await grantRuntime(client, role);
     await client.query('commit');
   } catch (error) {
     await client.query('rollback');

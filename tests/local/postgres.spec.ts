@@ -2,7 +2,9 @@ import { test, expect, type Page } from '@playwright/test';
 import { randomUUID, createHash } from 'node:crypto';
 import pg from 'pg';
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_MIGRATION_URL,
+});
 const password = 'InviteMe prueba local 2026!';
 async function register(page: Page, email: string) {
   await page.goto('/register');
@@ -259,4 +261,60 @@ test('rechaza contraseñas incorrectas, cuentas duplicadas y demasiados intentos
   );
   await page.goto('/dashboard');
   await expect(page).toHaveURL(/\/login/);
+});
+
+test('RLS real filtra consultas sin WHERE y limpia el contexto de conexiones', async () => {
+  const users = [randomUUID(), randomUUID()];
+  for (const [index, id] of users.entries()) {
+    await pool.query(
+      'insert into app_users(id,email,password_hash) values($1,$2,$3)',
+      [id, `rls-${id}@test.local`, 'fixture'],
+    );
+    await pool.query(
+      `insert into events(owner_id,slug,title,starts_at,venue_name,message)
+      values($1,$2,$3,now(),'Jardín','Nos vemos')`,
+      [id, `rls-${id}`, `Evento ${index}`],
+    );
+  }
+  const runtime = new pg.Client({ connectionString: process.env.DATABASE_URL });
+  await runtime.connect();
+  try {
+    const flags = (
+      await runtime.query(
+        'select rolsuper,rolbypassrls from pg_roles where rolname=current_user',
+      )
+    ).rows[0];
+    expect(flags).toEqual({ rolsuper: false, rolbypassrls: false });
+    expect((await runtime.query('select * from events')).rows).toHaveLength(0);
+    for (const id of users) {
+      await runtime.query('begin');
+      await runtime.query("select set_config('app.user_id',$1,true)", [id]);
+      expect((await runtime.query('select owner_id from events')).rows).toEqual(
+        [{ owner_id: id }],
+      );
+      await runtime.query('commit');
+      expect((await runtime.query('select * from events')).rows).toHaveLength(
+        0,
+      );
+    }
+    await runtime.query('begin');
+    await runtime.query("select set_config('app.user_id',$1,true)", [users[0]]);
+    await expect(
+      runtime.query(
+        `insert into events(owner_id,slug,title,starts_at,venue_name,message)
+      values($1,'forged-owner','Intrusión',now(),'Jardín','Mensaje')`,
+        [users[1]],
+      ),
+    ).rejects.toThrow(/row-level security/);
+    await runtime.query('rollback');
+    expect((await runtime.query('select * from events')).rows).toHaveLength(0);
+    await expect(runtime.query('select * from app_users')).rejects.toThrow(
+      /permission denied/,
+    );
+    await expect(
+      runtime.query('alter table events disable row level security'),
+    ).rejects.toThrow(/owner/);
+  } finally {
+    await runtime.end();
+  }
 });

@@ -42,8 +42,7 @@ export const getPublicEvent = cache(
   async (slug: string): Promise<PublicEvent | null> => {
     if (!hasDatabase() || !/^[a-z0-9-]{3,150}$/.test(slug)) return null;
     const { rows } = await query<Event>(
-      `select slug,title,category,timezone,starts_at,venue_name,venue_address,map_url,rsvp_open,primary_color,accent_color,message,cover_path
-       from events where slug=$1 and published_at is not null`,
+      'select * from public.public_invitation($1)',
       [slug],
     );
     const data = rows[0];

@@ -12,7 +12,7 @@ npm run db:start
 npm run dev -- --port 3101
 ```
 
-`db:start` crea y arranca una instancia exclusiva en `127.0.0.1:55432`, crea el rol `inviteme_app` sin permisos de superusuario, la base `inviteme`, configura `DATABASE_URL` en `.env.local` y aplica las migraciones pendientes. No modifica el servicio PostgreSQL de Windows ni las bases de otros proyectos. Es idempotente. Solo escucha conexiones locales y exige SCRAM; las contraseñas aleatorias y los datos viven en `.local/`, excluido de Git. El helper no es un instalador de PostgreSQL ni un servicio de inicio automático: repite `db:start` después de reiniciar el equipo.
+`db:start` crea y arranca una instancia exclusiva en `127.0.0.1:55432`, crea el dueño de migraciones `inviteme_app`, el usuario restringido `inviteme_runtime`, la base `inviteme` y aplica las migraciones pendientes. `DATABASE_URL` en `.env.local` usa solamente el usuario restringido. `DATABASE_MIGRATION_URL` se guarda en `.env.database`, que Next.js no carga. No modifica el servicio PostgreSQL de Windows ni las bases de otros proyectos. Es idempotente. Solo escucha conexiones locales y exige SCRAM; las contraseñas aleatorias y los datos viven en `.local/`, excluido de Git. El helper no es un instalador de PostgreSQL ni un servicio de inicio automático: repite `db:start` después de reiniciar el equipo.
 
 ```powershell
 npm run db:status
@@ -24,17 +24,18 @@ npm run db:migrate
 
 ## Otra instancia de PostgreSQL
 
-Puedes usar una base dedicada existente en vez del helper: configura `DATABASE_URL` en `.env.local` y ejecuta `npm run db:migrate`. No ejecutes `db:start` en ese caso, porque selecciona la instancia del helper. El usuario de conexión debe ser dueño de esa base para crear tablas, esquema privado y funciones; no necesita ser superusuario. Las migraciones de `database/migrations/` se aplican dentro de una transacción, con bloqueo y checksum. No edites una migración aplicada: añade otra.
+Puedes usar una base dedicada existente en vez del helper: crea dos roles distintos: dueño de tablas/migraciones y usuario de aplicación sin superusuario, BYPASSRLS ni pertenencia al dueño. Configura `DATABASE_URL` del usuario restringido en `.env.local` y `DATABASE_MIGRATION_URL` del dueño en `.env.database`; ejecuta `npm run db:migrate`. No ejecutes `db:start` en ese caso, porque selecciona la instancia del helper. Solo el usuario de migraciones debe ser dueño de esa base. El usuario de aplicación no puede ser dueño de las tablas: la aplicación rechaza esa configuración. El administrador de PostgreSQL debe crear ambos roles previamente. Las migraciones de `database/migrations/` se aplican dentro de una transacción, con bloqueo y checksum. No edites una migración aplicada: añade otra.
 
 ## Cuentas y acceso
 
-El registro local inicia sesión inmediatamente; no envía correo de confirmación. Las cuentas anteriores de Supabase no existen aquí. Contraseñas con scrypt y sal aleatoria, sesiones aleatorias de siete días cuyo token se guarda solo como SHA-256 en PostgreSQL, cookies HttpOnly y SameSite=Lax. Cerrar sesión revoca el token en la base. El acceso a cada operación privada verifica sesión y propietario; no hay Data API, JWT de Supabase ni acceso a PostgreSQL desde el navegador. Las consultas usan parámetros. Los límites de autenticación y RSVP persisten en la base.
+El registro local inicia sesión inmediatamente; no envía correo de confirmación. Las cuentas anteriores de Supabase no existen aquí. Contraseñas con scrypt y sal aleatoria, sesiones aleatorias de siete días cuyo token se guarda solo como SHA-256 en PostgreSQL, cookies HttpOnly y SameSite=Lax. Cerrar sesión revoca el token en la base. El acceso a cada operación privada verifica sesión y propietario, y RLS limita las filas de eventos, respuestas y portadas. La identidad se configura con SET LOCAL dentro de cada transacción, y desaparece al confirmar o revertir; no hay Data API, JWT de Supabase ni acceso a PostgreSQL desde el navegador. Las consultas usan parámetros. Los límites de autenticación y RSVP persisten en la base. Cuentas, sesiones, límites y migraciones tienen RLS sin políticas públicas y no conceden lectura directa al usuario de aplicación. Funciones acotadas con SECURITY DEFINER y search_path vacío permiten autenticación, proyección pública y RSVP transaccional; sus permisos están enumerados en `scripts/runtime-grants.mjs`. El rol de aplicación es exclusivo del backend: nunca se entrega al navegador.
 
 Las portadas de hasta 3 MB se almacenan como `bytea`, con reemplazo transaccional y borrado en cascada. `/api/covers/[id]` comprueba que el evento esté publicado o que la sesión pertenezca al dueño, en cada petición. Despublicar corta el acceso público sin esperar a que caduque una URL firmada.
 
 ## Variables
 
-- `DATABASE_URL`: conexión privada; nunca usar un prefijo `NEXT_PUBLIC_`.
+- `DATABASE_MIGRATION_URL`: solo comandos de migración, en `.env.database`. No configurar en el proceso de la web.
+- `DATABASE_URL`: conexión privada del usuario restringido; nunca usar un prefijo `NEXT_PUBLIC_`.
 - `NEXT_PUBLIC_SITE_URL`: URL del sitio. Usa `http://localhost:3101` para el comando de desarrollo anterior; determina también si la cookie exige HTTPS.
 - `RSVP_RATE_LIMIT_SECRET`: secreto aleatorio de al menos 32 caracteres; el helper lo genera si falta.
 - Las dos claves Turnstile siguen siendo opcionales, pero deben configurarse juntas para exigir CAPTCHA.
