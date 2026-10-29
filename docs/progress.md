@@ -82,3 +82,9 @@ Entradas escalonadas en el hero, aparición de la tarjeta de invitación y eleme
 Comprobado: ESLint, TypeScript, 39 pruebas de unidades/SQL y 18 pruebas de navegador en escritorio y móvil. Las seis comprobaciones nuevas cubren revelado, cambio de preferencia en caliente, llegada al RSVP y contenido sin JavaScript.
 
 La revisión visual incluyó el panel lateral y los anchos de 320, 714 y 820 px. El hero pasa a una columna en ventanas intermedias y su círculo decorativo se ajusta al espacio disponible; el control de desbordamiento compara con el ancho real del contenido, descontando la barra de desplazamiento.
+
+## 11. PostgreSQL local — esquema y contraseñas (29/10/2026)
+
+A petición del propietario se reemplaza Supabase por una base local nueva y vacía. Supabase permanece pausado; no se importan sus datos. Esquema independiente en `database/migrations/`: usuarios, sesiones, eventos, respuestas, portadas bytea y límites de intentos. Se conserva el bloqueo transaccional del evento para RSVP, idempotencia y validación de capacidad. Contraseñas con scrypt, sal aleatoria y comparación de tiempo constante.
+
+Comprobación de esta etapa: 34 pruebas unitarias/SQL aprobadas; migración aplicada y repetida sin cambios en PostgreSQL 17 local. El flujo conectado de aplicación se verifica en la siguiente etapa.
