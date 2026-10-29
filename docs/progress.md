@@ -100,3 +100,5 @@ Verificado: lint, TypeScript, 34 pruebas unitarias/SQL, build de producción y d
 Se automatizan los dos escenarios conectados en `npm run test:local`: base y rol temporales, migraciones, build, navegador y limpieza incluso tras un fallo. Se integra un servicio PostgreSQL 17 en CI. Documentación actualizada para configuración, sesiones, portadas, arranque/parada, respaldo y límites de despliegue. La verificación de Supabase queda identificada como histórica.
 
 Resultado final local: formato correcto; lint y tipos aprobados; 34 pruebas unitarias/SQL, 18 pruebas públicas de escritorio/móvil y 2 escenarios completos conectados aprobados (54 pruebas en total); compilación de producción correcta y `npm audit --omit=dev` sin vulnerabilidades. La instancia local se detuvo y reinició conservando el esquema, sin tocar PostgreSQL de otros proyectos. La base de uso diario quedó vacía y el usuario de aplicación no es superusuario.
+
+Se normalizaron los saltos de línea de `.env.example` para evitar caracteres CR duplicados en Windows. Verificación: `git diff --check` y comprobación de formato.
