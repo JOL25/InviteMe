@@ -1,16 +1,16 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { useMotion } from '@/components/motion-provider';
 
 /** Progressive enhancement: server content is visible without JS or motion. */
 export function ScrollReveal({ children }: { children: React.ReactNode }) {
   const scope = useRef<HTMLDivElement>(null);
+  const enabled = useMotion();
 
   useEffect(() => {
     const root = scope.current;
-    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (!root || preference.matches || !('IntersectionObserver' in window))
-      return;
+    if (!root || !enabled || !('IntersectionObserver' in window)) return;
 
     const elements = Array.from(
       root.querySelectorAll<HTMLElement>('[data-reveal]'),
@@ -38,15 +38,8 @@ export function ScrollReveal({ children }: { children: React.ReactNode }) {
       observer.disconnect();
       elements.forEach((element) => delete element.dataset.motion);
     };
-    const onPreferenceChange = () => {
-      if (preference.matches) clear();
-    };
-    preference.addEventListener('change', onPreferenceChange);
-    return () => {
-      clear();
-      preference.removeEventListener('change', onPreferenceChange);
-    };
-  }, []);
+    return clear;
+  }, [enabled]);
 
   return (
     <div className="motion-scope" ref={scope}>

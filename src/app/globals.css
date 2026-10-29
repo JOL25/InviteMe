@@ -591,9 +591,12 @@ input[type='checkbox'] {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  :root:not([data-site-motion='full']):not([data-site-motion='replay']),
+  :root:not([data-site-motion='full']):not([data-site-motion='replay']) *,
+  :root:not([data-site-motion='full']):not([data-site-motion='replay'])
+    *::before,
+  :root:not([data-site-motion='full']):not([data-site-motion='replay'])
+    *::after {
     scroll-behavior: auto !important;
     animation: none !important;
     transition: none !important;

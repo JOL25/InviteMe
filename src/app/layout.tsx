@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { MotionProvider } from '@/components/motion-provider';
 import './globals.css';
 export const metadata: Metadata = {
   title: {
@@ -17,7 +18,7 @@ export default function RootLayout({
         <a className="skip-link" href="#main">
           Saltar al contenido
         </a>
-        {children}
+        <MotionProvider>{children}</MotionProvider>
       </body>
     </html>
   );

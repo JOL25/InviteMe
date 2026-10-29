@@ -14,6 +14,10 @@ npm run dev -- --port 3101
 
 Abre http://localhost:3101. `db:start` prepara una instancia exclusiva en el puerto 55432 y configura la conexión sin modificar las bases de otros proyectos. Registra una cuenta nueva en `/register`; no se necesita Supabase ni confirmación por correo. No borres `.local/`, donde se conservan los datos.
 
+## Animaciones
+
+Al entrar, el título aparece por líneas desde ambos lados y las secciones se revelan al desplazarte. Los botones y las preguntas frecuentes responden al clic. En la esquina inferior derecha puedes activar/desactivar los efectos y pulsar **Repetir entrada**. La elección se recuerda en el navegador; inicialmente se respeta la preferencia de movimiento reducido del sistema.
+
 ## Comprobaciones
 
 - `npm run check`: ESLint, TypeScript y pruebas.

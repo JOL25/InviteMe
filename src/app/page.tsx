@@ -59,11 +59,9 @@ export default function Home() {
                 MOMENTOS.
               </span>
               <h1>
-                Hay momentos
-                <br />
-                que merecen
-                <br />
-                <em>una invitación.</em>
+                <span className="hero-line">Hay momentos</span>{' '}
+                <span className="hero-line">que merecen</span>{' '}
+                <em className="hero-line">una invitación.</em>
               </h1>
               <p>
                 Reúne a tus personas favoritas con una invitación tan especial
@@ -85,7 +83,7 @@ export default function Home() {
                 <span>Lista para compartir</span>
               </div>
             </div>
-            <div className="hero-art" data-reveal>
+            <div className="hero-art" data-reveal="right">
               <span className="art-orbit" />
               <div className="sample-invitation">
                 <Botanical className="card-botanical botanical-one" />
@@ -149,7 +147,11 @@ export default function Home() {
             </div>
             <div className="feature-grid">
               {features.map(({ icon: Icon, title, text }, i) => (
-                <article key={title} data-reveal data-reveal-delay={i}>
+                <article
+                  key={title}
+                  data-reveal={i % 2 ? 'right' : 'left'}
+                  data-reveal-delay={i}
+                >
                   <span className="feature-number">0{i + 1}</span>
                   <Icon size={30} strokeWidth={1.1} />
                   <h3>{title}</h3>
@@ -159,7 +161,7 @@ export default function Home() {
             </div>
           </section>
           <section className="how-section" id="como-funciona">
-            <div className="how-intro" data-reveal>
+            <div className="how-intro" data-reveal="left">
               <span className="eyebrow">SENCILLO, COMO DEBE SER</span>
               <h2>
                 De una idea
@@ -187,7 +189,11 @@ export default function Home() {
                   'Publica, envía tu enlace o QR y recibe las confirmaciones.',
                 ],
               ].map(([title, text], index) => (
-                <li key={title} data-reveal data-reveal-delay={index}>
+                <li
+                  key={title}
+                  data-reveal={index % 2 ? 'right' : 'left'}
+                  data-reveal-delay={index}
+                >
                   <span>0{index + 1}</span>
                   <div>
                     <h3>{title}</h3>
@@ -198,7 +204,7 @@ export default function Home() {
             </ol>
           </section>
           <section className="template-section">
-            <div className="template-art" data-reveal>
+            <div className="template-art" data-reveal="right">
               <Botanical />
               <span className="serif">
                 Hecha para
