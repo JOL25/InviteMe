@@ -25,6 +25,8 @@ Dependencias fijadas y lockfile versionado. Cada commit debe indicar sus comprob
 
 ## Referencias técnicas
 
+Los respaldos incluyen una instantánea completa de PostgreSQL y una lista explícita de configuración privada, con hashes SHA-256 y conteos por tabla. Restaurar crea otra base y roles nuevos; no sobrescribe la base activa. Los permisos se reconstruyen desde la lista del proyecto, sin heredar ACL del archivo. Se revocan sesiones y enlaces de recuperación copiados; se conservan secretos y enlaces de invitados y gestión de RSVP. Las conexiones nuevas se guardan en JSON privados separados para runtime y migraciones. La vista de la copia fuerza buzón local y deshabilita SMTP y CAPTCHA. Véase [Respaldo y recuperación](backups.md).
+
 - https://nextjs.org/docs/app/getting-started/installation
 - https://node-postgres.com/features/queries
 - https://node-postgres.com/features/transactions

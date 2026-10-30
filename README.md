@@ -62,6 +62,8 @@ Consulta [las decisiones](docs/decisions.md) y [el progreso](docs/progress.md).
 
 Sigue [la guía local y de despliegue](docs/deployment.md) para usar otra instancia, aplicar migraciones, respaldar datos y configurar el sitio. Las credenciales no se versionan.
 
+Para guardar cuentas, eventos, invitados, respuestas y fotos, ejecuta `npm run db:backup`. Comprueba el archivo con `npm run db:verify -- --backup "RUTA_DEL_RESPALDO"`. Consulta [Respaldo y recuperación](docs/backups.md) para restaurar una copia sin sustituir la base activa y trasladarla a otra PC.
+
 Supabase continúa pausado. Por decisión del propietario, la base local empieza vacía y no contiene cuentas, eventos ni respuestas del servicio anterior. Los documentos de verificación de Supabase son históricos.
 
 ## Rutas principales

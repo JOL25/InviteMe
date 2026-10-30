@@ -20,7 +20,7 @@ npm run db:stop
 npm run db:migrate
 ```
 
-`db:stop` detiene solo esta instancia. No borres `.local/`: contiene los datos y las credenciales de esta instalación. Para respaldo, usa `pg_dump` con la conexión `DATABASE_MIGRATION_URL` de `.env.database`, que puede leer todas las tablas protegidas por RLS, y guarda el archivo fuera del repositorio; incluye usuarios, sesiones, eventos, respuestas, portadas y fotos de galería.
+`db:stop` detiene solo esta instancia. No borres `.local/`: contiene los datos y las credenciales de esta instalación. Ejecuta `npm run db:backup` para respaldar la base completa y la configuración privada de enlaces. `npm run db:verify -- --backup "RUTA_DEL_RESPALDO"` comprueba una restauración temporal. La [guía de respaldo y recuperación](backups.md) explica cómo guardar una copia fuera del equipo y restaurar sin sustituir la base activa.
 
 ## Otra instancia de PostgreSQL
 

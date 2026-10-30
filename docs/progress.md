@@ -230,3 +230,9 @@ Resultado local: 112 pruebas unitarias/SQL, 24 públicas de escritorio/móvil, 1
 Archivo custom de PostgreSQL 17 mediante instantánea compartida con inventario de tablas y migraciones; configuración privada en JSON con lista explícita y manifiesto SHA-256. Credenciales de conexión solo en el entorno de procesos, sin shell ni valores secretos en argumentos. Restauración exclusivamente a un nombre nuevo, roles aleatorios separados, ACL retiradas y permisos reconstruidos desde la lista del proyecto. Comprobación de conteos y RLS; se eliminan sesiones y recuperaciones copiadas, conservando contraseñas y enlaces de invitados. Limpieza limitada a los recursos recién creados, con comprobación de identidad de base.
 
 Verificado: lint, tipos y 118 pruebas unitarias/SQL aprobadas. Las seis nuevas cubren selección de secretos, caracteres especiales, nombres y rutas protegidas, conexiones PostgreSQL y entorno de vista local sin credenciales administrativas ni entrega SMTP. No se modifican migraciones aplicadas ni la base de uso diario.
+
+## 34. Comandos y guía de recuperación (30/10/2026)
+
+Comandos db:backup, db:verify, db:restore y db:preview, con opciones validadas y salida sin credenciales. La vista usa el usuario restringido, otro hostname local, buzón de la copia y SMTP/CAPTCHA deshabilitados. La guía documenta copia privada fuera del equipo, traslado a otra PC, separación de conexiones y ausencia de sustitución automática de la base activa. Los archivos no están cifrados ni firmados; se restauran solo respaldos propios de confianza.
+
+Verificado: respaldo real de la base diaria creado en .local/backups, con 13 tablas y configuración privada de enlaces. db:verify restauró ese archivo, comparó conteos y permisos y eliminó la base temporal y sus roles. La base activa y su configuración permanecen conservadas. Formato y diff correctos; opciones del launcher contrastadas con la documentación local de Next.js 16.
