@@ -41,6 +41,7 @@ try {
         'test',
         '-c',
         'playwright.local.config.ts',
+        ...process.argv.slice(2),
       ],
       {
         stdio: 'inherit',
