@@ -34,6 +34,7 @@ En **Detalles y diseño → Itinerario**, añade hasta 20 actividades con títul
 - `npm run format:check`: formato.
 - `npm run test:local`: flujo completo contra una base PostgreSQL temporal.
 - `npm run test:smtp`: recuperación contra una base temporal y un SMTP de captura local, sin envío externo.
+- `npm run test:backup`: respaldo y restauración contra bases PostgreSQL temporales.
 - `npm run db:status` / `npm run db:stop`: consultar o detener la instancia local.
 
 ## Recuperar una cuenta en este equipo

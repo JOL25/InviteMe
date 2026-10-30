@@ -236,3 +236,9 @@ Verificado: lint, tipos y 118 pruebas unitarias/SQL aprobadas. Las seis nuevas c
 Comandos db:backup, db:verify, db:restore y db:preview, con opciones validadas y salida sin credenciales. La vista usa el usuario restringido, otro hostname local, buzón de la copia y SMTP/CAPTCHA deshabilitados. La guía documenta copia privada fuera del equipo, traslado a otra PC, separación de conexiones y ausencia de sustitución automática de la base activa. Los archivos no están cifrados ni firmados; se restauran solo respaldos propios de confianza.
 
 Verificado: respaldo real de la base diaria creado en .local/backups, con 13 tablas y configuración privada de enlaces. db:verify restauró ese archivo, comparó conteos y permisos y eliminó la base temporal y sus roles. La base activa y su configuración permanecen conservadas. Formato y diff correctos; opciones del launcher contrastadas con la documentación local de Next.js 16.
+
+## 35. Pruebas de restauración y CI (30/10/2026)
+
+Ocho pruebas repetibles con PostgreSQL 17 real, bases y roles temporales. Comprueban respaldo completo, hashes de contraseña, fotos y portadas binarias, respuestas, itinerario y secretos con caracteres especiales; enlaces y RLS tras restaurar; cierre de sesiones y recuperación copiadas; rechazo de destino existente; alteración del dump y de la configuración; verificación temporal; y limpieza tras fallo real de pg_restore. El origen conserva sus datos. CI usa los binarios PostgreSQL 17 del contenedor de servicio, pasando credenciales por entorno y el archivo por streams.
+
+Resultado local: ocho pruebas de respaldo aprobadas, además de las 118 unitarias/SQL de esta etapa; formato, lint y tipos correctos. CI incorpora la suite de respaldo junto con las 24 pruebas públicas, 15 recorridos locales y dos de SMTP ya existentes. Se conserva el respaldo real de 13 tablas, comprobado por db:verify; no se activa SMTP ni se reactiva Supabase.

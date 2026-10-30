@@ -23,7 +23,8 @@
     "db:migrate": "node --env-file=.env.local --env-file=.env.database scripts/migrate.mjs",
     "mail:local": "node --env-file=.env.local scripts/mail-local.mjs",
     "test:local": "node scripts/test-local.mjs",
-    "test:smtp": "node scripts/test-local.mjs --smtp"
+    "test:smtp": "node scripts/test-local.mjs --smtp",
+    "test:backup": "node --test --test-concurrency=1 tests/backup/roundtrip.test.mjs"
   },
   "dependencies": {
     "date-fns": "4.4.0",
