@@ -24,6 +24,9 @@ export async function grantRuntime(client, role) {
   await client.query(
     `grant select,insert,update,delete on public.event_photos to ${quoted}`,
   );
+  await client.query(
+    `grant select,insert,update,delete on public.event_guests to ${quoted}`,
+  );
   for (const fn of [
     'private.actor_id()',
     'private.login_user(text)',
@@ -37,6 +40,8 @@ export async function grantRuntime(client, role) {
     'public.invitation_photos(text)',
     'public.read_gallery_photo(uuid)',
     'public.submit_rsvp(text,text,text,boolean,integer,text,uuid,text)',
+    'public.resolve_guest_invitation(text,text)',
+    'public.submit_guest_rsvp(text,text,text,boolean,integer,text,uuid,text)',
   ])
     await client.query(`grant execute on function ${fn} to ${quoted}`);
 }

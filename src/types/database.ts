@@ -30,6 +30,7 @@ export type Event = {
 export type RSVP = {
   id: string;
   event_id: string;
+  guest_id: string | null;
   guest_name: string;
   guest_email: string | null;
   attendance: boolean;

@@ -51,6 +51,7 @@ try {
           DATABASE_URL: url.toString(),
           DATABASE_MIGRATION_URL: migrationUrl,
           RSVP_RATE_LIMIT_SECRET: randomBytes(32).toString('hex'),
+          INVITATION_LINK_SECRET: randomBytes(32).toString('hex'),
           NEXT_PUBLIC_SITE_URL: 'http://localhost:3102',
           TURNSTILE_SECRET_KEY: '',
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: '',

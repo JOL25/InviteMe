@@ -151,6 +151,8 @@ if (!/^NEXT_PUBLIC_SITE_URL=.+/m.test(env))
   env += '\nNEXT_PUBLIC_SITE_URL=http://localhost:3101\n';
 if (!/^RSVP_RATE_LIMIT_SECRET=.+/m.test(env))
   env += `\nRSVP_RATE_LIMIT_SECRET=${randomBytes(32).toString('hex')}\n`;
+if (!/^INVITATION_LINK_SECRET=.+/m.test(env))
+  env += `\nINVITATION_LINK_SECRET=${randomBytes(32).toString('hex')}\n`;
 await migrate(url, 'inviteme_runtime');
 await writeFile(envPath, env.trimEnd() + `\nDATABASE_URL=${runtimeUrl}\n`, {
   mode: 0o600,
