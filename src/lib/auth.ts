@@ -18,9 +18,14 @@ export const currentUser = cache(async () => {
   );
   return rows[0] ?? null;
 });
-export async function createSession(userId: string) {
+export async function createSession(userId: string, passwordHash: string) {
   const token = randomBytes(32).toString('hex');
-  await query('select private.open_session($1,$2)', [userId, tokenHash(token)]);
+  const { rows } = await query<{ allowed: boolean }>(
+    'select private.open_checked_session($1,$2,$3) allowed',
+    [userId, tokenHash(token), passwordHash],
+  );
+  if (!rows[0]?.allowed)
+    throw new Error('La contraseña cambió durante el inicio de sesión.');
   (await cookies()).set(sessionCookie, token, {
     httpOnly: true,
     secure: new URL(siteUrl()).protocol === 'https:',

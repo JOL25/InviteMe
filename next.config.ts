@@ -3,6 +3,8 @@ const config: NextConfig = {
   poweredByHeader: false,
   turbopack: { root: process.cwd() },
   outputFileTracingRoot: process.cwd(),
+  // Runtime databases, outbox messages and credentials must never be packaged.
+  outputFileTracingExcludes: { '/*': ['./.local/**/*', './.env*'] },
   experimental: { serverActions: { bodySizeLimit: '4mb' } },
   async headers() {
     return [

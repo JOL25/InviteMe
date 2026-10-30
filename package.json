@@ -17,6 +17,7 @@
     "db:stop": "node scripts/postgres-local.mjs stop",
     "db:status": "node scripts/postgres-local.mjs status",
     "db:migrate": "node --env-file=.env.local --env-file=.env.database scripts/migrate.mjs",
+    "mail:local": "node --env-file=.env.local scripts/mail-local.mjs",
     "test:local": "node scripts/test-local.mjs"
   },
   "dependencies": {

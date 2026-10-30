@@ -1,4 +1,6 @@
 import { readFile } from 'node:fs/promises';
+import { mkdir, rm } from 'node:fs/promises';
+import path from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import pg from 'pg';
@@ -11,6 +13,9 @@ if (!adminUrl) {
   adminUrl = `postgresql://postgres:${credentials.admin}@127.0.0.1:55432/postgres`;
 }
 const name = `inviteme_test_${randomBytes(8).toString('hex')}`;
+const localRoot = path.resolve('.local');
+const mailDirectory = path.join(localRoot, `${name}_mail`);
+await mkdir(mailDirectory, { recursive: true });
 const runtimePassword = randomBytes(32).toString('hex');
 const ownerPassword = randomBytes(32).toString('hex');
 const runtimeRole = `${name}_app`;
@@ -52,6 +57,8 @@ try {
           DATABASE_MIGRATION_URL: migrationUrl,
           RSVP_RATE_LIMIT_SECRET: randomBytes(32).toString('hex'),
           INVITATION_LINK_SECRET: randomBytes(32).toString('hex'),
+          PASSWORD_RESET_DELIVERY: 'local',
+          PASSWORD_RESET_OUTBOX: mailDirectory,
           NEXT_PUBLIC_SITE_URL: 'http://localhost:3102',
           TURNSTILE_SECRET_KEY: '',
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: '',
@@ -66,5 +73,9 @@ try {
   await admin.query(`drop role if exists ${name}`);
   await admin.query(`drop role if exists ${runtimeRole}`);
   await admin.end();
+  const relative = path.relative(localRoot, mailDirectory);
+  if (!relative || relative.startsWith('..') || path.isAbsolute(relative))
+    throw new Error('Ruta de buzón de prueba inválida.');
+  await rm(mailDirectory, { recursive: true, force: true });
 }
 process.exitCode = exitCode;

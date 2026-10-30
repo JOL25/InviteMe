@@ -32,7 +32,10 @@ export async function grantRuntime(client, role) {
     'private.login_user(text)',
     'private.register_user(text,text)',
     'private.session_user(text)',
-    'private.open_session(uuid,text)',
+    'private.open_checked_session(uuid,text,text)',
+    'private.issue_password_reset(text,text,text,text)',
+    'private.password_reset_attempt(text)',
+    'private.consume_password_reset(text,text)',
     'private.close_session(text)',
     'private.auth_attempt(text)',
     'public.public_invitation(text)',
@@ -48,6 +51,9 @@ export async function grantRuntime(client, role) {
     'public.manage_rsvp(text,text,text,integer,text,text,text,boolean,integer,text,text)',
   ])
     await client.query(`grant execute on function ${fn} to ${quoted}`);
+  await client.query(
+    `revoke execute on function private.open_session(uuid,text) from ${quoted}`,
+  );
   await client.query(
     `grant select,insert,update,delete on public.event_activities to ${quoted}`,
   );

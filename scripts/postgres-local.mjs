@@ -153,6 +153,8 @@ if (!/^RSVP_RATE_LIMIT_SECRET=.+/m.test(env))
   env += `\nRSVP_RATE_LIMIT_SECRET=${randomBytes(32).toString('hex')}\n`;
 if (!/^INVITATION_LINK_SECRET=.+/m.test(env))
   env += `\nINVITATION_LINK_SECRET=${randomBytes(32).toString('hex')}\n`;
+if (!/^PASSWORD_RESET_DELIVERY=.+/m.test(env))
+  env += '\nPASSWORD_RESET_DELIVERY=local\n';
 await migrate(url, 'inviteme_runtime');
 await writeFile(envPath, env.trimEnd() + `\nDATABASE_URL=${runtimeUrl}\n`, {
   mode: 0o600,

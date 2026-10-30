@@ -30,8 +30,10 @@ export async function authenticate(
     if (limits[0].attempts > 10)
       return { error: 'Demasiados intentos. Espera unos minutos.' };
     let userId: string;
+    let passwordHash: string;
     if (mode === 'register') {
       const hash = await hashPassword(input.data.password);
+      passwordHash = hash;
       const { rows } = await query<{ id: string }>(
         'select private.register_user($1,$2) id',
         [input.data.email, hash],
@@ -45,12 +47,13 @@ export async function authenticate(
       const hash =
         rows[0]?.password_hash ??
         `scrypt-v1$${'0'.repeat(32)}$${'0'.repeat(128)}`;
+      passwordHash = hash;
       const valid = await verifyPassword(input.data.password, hash);
       if (!valid || !rows[0])
         return { error: 'Correo o contraseña incorrectos.' };
       userId = rows[0].id;
     }
-    await createSession(userId);
+    await createSession(userId, passwordHash);
   } catch {
     return {
       error:
