@@ -24,7 +24,7 @@ export function rsvpCsvRow(row: RSVP) {
     [
       row.guest_name,
       row.guest_email || '',
-      row.attendance ? 'Sí' : 'No',
+      row.cancelled_at ? 'Cancelada' : row.attendance ? 'Sí' : 'No',
       row.attendance ? row.party_size : 0,
       row.note,
       row.created_at,

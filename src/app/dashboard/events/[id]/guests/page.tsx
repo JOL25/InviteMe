@@ -119,7 +119,11 @@ export default async function Guests({
                     <span
                       className={`badge ${row.attendance ? 'badge-live' : ''}`}
                     >
-                      {row.attendance ? 'Asistirá' : 'No asistirá'}
+                      {row.cancelled_at
+                        ? 'Canceló asistencia'
+                        : row.attendance
+                          ? 'Asistirá'
+                          : 'No asistirá'}
                     </span>
                   </td>
                   <td>{row.attendance ? row.party_size : '—'}</td>

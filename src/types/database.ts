@@ -38,6 +38,9 @@ export type RSVP = {
   note: string;
   idempotency_key: string;
   created_at: string;
+  cancelled_at?: string | null;
+  updated_at?: string;
+  revision?: number;
 };
 export type GalleryItem = {
   id: string;

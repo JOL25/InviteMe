@@ -1994,6 +1994,26 @@ a {
 .invitee-stats {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
+.rsvp-management-page {
+  width: min(100% - 40px, 720px);
+  margin: 64px auto;
+}
+.rsvp-management-page h1 {
+  margin: 16px 0;
+  font-size: clamp(36px, 7vw, 56px);
+}
+.rsvp-management {
+  margin-top: 28px;
+}
+.rsvp-management input,
+.rsvp-management textarea,
+.rsvp-management select {
+  min-width: 0;
+  width: 100%;
+}
+.rsvp-management .notice {
+  overflow-wrap: anywhere;
+}
 
 .itinerary-manager {
   margin: 48px 0;

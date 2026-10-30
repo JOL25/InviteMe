@@ -94,6 +94,7 @@ export const rsvpSchema = z.object({
   note: optionalText(500),
   idempotencyKey: z.uuid(),
   inviteToken: invitationTokenSchema.optional(),
+  managementToken: invitationTokenSchema.optional(),
   website: z.literal('').optional().default(''),
   turnstileToken: z.string().max(2048).optional(),
 });

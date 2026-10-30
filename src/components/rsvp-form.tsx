@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
+import { managementPath } from '@/lib/rsvp-management';
 declare global {
   interface Window {
     turnstile?: {
@@ -100,6 +101,7 @@ function RSVPFields({
   const [token, setToken] = useState('');
   const [loaded, setLoaded] = useState(false);
   const key = useRef<string | null>(null);
+  const managementToken = useRef<string | null>(null);
   const captcha = useRef<HTMLDivElement>(null);
   const widget = useRef<string | null>(null);
   const sitekey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
@@ -155,12 +157,35 @@ function RSVPFields({
           /* In-memory retries still work. */
         }
       }
+      if (!invitation && !managementToken.current) {
+        const tokenKey = `${storageKey}:management`;
+        try {
+          managementToken.current = sessionStorage.getItem(tokenKey);
+        } catch {
+          /* In-memory retries remain available. */
+        }
+        if (
+          !managementToken.current ||
+          !/^[a-f0-9]{64}$/.test(managementToken.current)
+        ) {
+          managementToken.current = Array.from(
+            crypto.getRandomValues(new Uint8Array(32)),
+            (byte) => byte.toString(16).padStart(2, '0'),
+          ).join('');
+        }
+        try {
+          sessionStorage.setItem(tokenKey, managementToken.current);
+        } catch {
+          /* The receipt still offers a link while this page remains open. */
+        }
+      }
       const response = await fetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           slug,
           inviteToken: inviteToken ?? undefined,
+          managementToken: invitation ? undefined : managementToken.current,
           guestName: form.get('guestName'),
           guestEmail: form.get('guestEmail'),
           attendance: attendance === 'yes',
@@ -176,18 +201,33 @@ function RSVPFields({
         setError(data.error || 'No pudimos guardar tu respuesta.');
         return;
       }
+      let receiptSaved = false;
       try {
         sessionStorage.setItem(
           `inviteme-receipt:${slug}`,
           JSON.stringify({
             attendance: attendance === 'yes',
             size: attendance === 'yes' ? Number(form.get('partySize')) : 0,
+            managementKind: invitation ? 'guest' : 'open',
+            managementToken: inviteToken ?? managementToken.current,
           }),
         );
+        receiptSaved = true;
       } catch {
         /* Confirmation page has a generic fallback. */
       }
-      router.push(`/i/${slug}/thanks?confirmed=1`);
+      const privateToken = inviteToken ?? managementToken.current;
+      const fallback =
+        !receiptSaved && privateToken
+          ? managementPath(
+              slug,
+              invitation ? 'guest' : 'open',
+              privateToken,
+            ).split('#')[1]
+          : '';
+      router.push(
+        `/i/${slug}/thanks?confirmed=1${fallback ? `#${fallback}` : ''}`,
+      );
     } catch {
       setError(
         'No pudimos conectar. Reintenta sin cerrar esta página; evitaremos duplicar tu respuesta.',
@@ -221,8 +261,14 @@ function RSVPFields({
             {invitation.attendance
               ? `Confirmaste para ${invitation.party_size} ${invitation.party_size === 1 ? 'persona' : 'personas'}.`
               : 'Nos avisaste que no podrás asistir.'}{' '}
-            Para solicitar cambios, contacta con quien organiza el evento.
+            Puedes actualizar tu respuesta o cancelar tu asistencia.
           </p>
+          <a
+            className="button button-outline"
+            href={managementPath(slug, 'guest', inviteToken)}
+          >
+            Gestionar mi respuesta
+          </a>
         </div>
       );
   }

@@ -37,9 +37,11 @@ En **Detalles y diseño → Itinerario**, añade hasta 20 actividades con títul
 
 ## Alcance
 
-Una plantilla clásica, portada, galería de hasta ocho fotos, itinerario de hasta 20 actividades, paleta y mensaje; eventos por propietario, vista previa privada, publicación, RSVP abierto e individual, lista de invitados con pendientes, CSV y QR. Sin pagos, mensajería automática ni edición/cancelación de respuestas.
+Una plantilla clásica, portada, galería de hasta ocho fotos, itinerario de hasta 20 actividades, paleta y mensaje; eventos por propietario, vista previa privada, publicación, RSVP abierto e individual con edición/cancelación, lista de invitados con pendientes, CSV y QR. Sin pagos ni mensajería automática.
 
 En **Lista de invitados**, añade nombres, contacto opcional y cupo por invitación. Comparte manualmente el enlace individual de cada persona después de publicar. Puedes renovarlo o desactivarlo. Cada invitación permite una respuesta; los pendientes cuentan invitaciones de esta lista, incluso las desactivadas. Las respuestas abiertas se distinguen en el panel y el CSV y no descuentan pendientes por coincidencias de nombre o correo. Conserva `INVITATION_LINK_SECRET` al respaldar o mover el proyecto para poder recuperar los mismos enlaces desde el panel.
+
+Después de responder, **Gestionar mi respuesta** permite cambiar asistencia, acompañantes, correo y mensaje. El nombre de una invitación individual se conserva. Los invitados nominativos pueden volver a su enlace original; las nuevas respuestas abiertas reciben un enlace privado de gestión que deben guardar. Cancelar libera todos los cupos de esa respuesta y queda identificado en el panel y CSV; no vuelve a contar como pendiente. Con las confirmaciones cerradas solo se permite cancelar. Para volver a confirmar se necesitan cupos y confirmaciones abiertas. Las respuestas abiertas anteriores a esta función siguen registradas, pero no se les puede recuperar un enlace por nombre o correo.
 
 Consulta [las decisiones](docs/decisions.md) y [el progreso](docs/progress.md).
 
