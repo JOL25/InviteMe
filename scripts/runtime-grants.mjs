@@ -43,6 +43,9 @@ export async function grantRuntime(client, role) {
     'public.submit_rsvp(text,text,text,boolean,integer,text,uuid,text)',
     'public.resolve_guest_invitation(text,text)',
     'public.submit_guest_rsvp(text,text,text,boolean,integer,text,uuid,text)',
+    'public.submit_managed_rsvp(text,text,text,boolean,integer,text,uuid,text,text)',
+    'public.resolve_rsvp_management(text,text,text)',
+    'public.manage_rsvp(text,text,text,integer,text,text,text,boolean,integer,text,text)',
   ])
     await client.query(`grant execute on function ${fn} to ${quoted}`);
   await client.query(
