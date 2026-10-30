@@ -5,6 +5,11 @@ import { randomBytes } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import pg from 'pg';
 import { migrate } from './migrate.mjs';
+import { startTestSMTP } from './test-smtp.mjs';
+const smtpMode = process.argv.includes('--smtp');
+const testArguments = process.argv
+  .slice(2)
+  .filter((value) => value !== '--smtp');
 let adminUrl = process.env.TEST_DATABASE_ADMIN_URL;
 if (!adminUrl) {
   const credentials = JSON.parse(
@@ -15,14 +20,16 @@ if (!adminUrl) {
 const name = `inviteme_test_${randomBytes(8).toString('hex')}`;
 const localRoot = path.resolve('.local');
 const mailDirectory = path.join(localRoot, `${name}_mail`);
-await mkdir(mailDirectory, { recursive: true });
 const runtimePassword = randomBytes(32).toString('hex');
 const ownerPassword = randomBytes(32).toString('hex');
 const runtimeRole = `${name}_app`;
 const admin = new pg.Client({ connectionString: adminUrl });
 await admin.connect();
 let exitCode = 1;
+let smtp;
 try {
+  await mkdir(mailDirectory, { recursive: true });
+  if (smtpMode) smtp = await startTestSMTP(mailDirectory);
   await admin.query(
     `create role ${name} login nosuperuser nocreatedb nocreaterole password '${ownerPassword}'`,
   );
@@ -45,8 +52,8 @@ try {
         'node_modules/@playwright/test/cli.js',
         'test',
         '-c',
-        'playwright.local.config.ts',
-        ...process.argv.slice(2),
+        smtpMode ? 'playwright.smtp.config.ts' : 'playwright.local.config.ts',
+        ...testArguments,
       ],
       {
         stdio: 'inherit',
@@ -57,7 +64,12 @@ try {
           DATABASE_MIGRATION_URL: migrationUrl,
           RSVP_RATE_LIMIT_SECRET: randomBytes(32).toString('hex'),
           INVITATION_LINK_SECRET: randomBytes(32).toString('hex'),
-          PASSWORD_RESET_DELIVERY: 'local',
+          PASSWORD_RESET_DELIVERY: smtpMode ? 'smtp-test' : 'local',
+          SMTP_HOST: '127.0.0.1',
+          SMTP_PORT: smtp ? String(smtp.port) : '',
+          SMTP_USER: '',
+          SMTP_PASSWORD: '',
+          SMTP_FROM: 'recovery@inviteme.test',
           PASSWORD_RESET_OUTBOX: mailDirectory,
           NEXT_PUBLIC_SITE_URL: 'http://localhost:3102',
           TURNSTILE_SECRET_KEY: '',
@@ -69,6 +81,7 @@ try {
     child.on('exit', (code) => resolve(code ?? 1));
   });
 } finally {
+  if (smtp) await smtp.close();
   await admin.query(`drop database if exists ${name} with (force)`);
   await admin.query(`drop role if exists ${name}`);
   await admin.query(`drop role if exists ${runtimeRole}`);
