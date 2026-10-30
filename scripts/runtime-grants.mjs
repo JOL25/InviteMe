@@ -38,10 +38,14 @@ export async function grantRuntime(client, role) {
     'public.public_invitation(text)',
     'public.read_cover(uuid)',
     'public.invitation_photos(text)',
+    'public.invitation_activities(text)',
     'public.read_gallery_photo(uuid)',
     'public.submit_rsvp(text,text,text,boolean,integer,text,uuid,text)',
     'public.resolve_guest_invitation(text,text)',
     'public.submit_guest_rsvp(text,text,text,boolean,integer,text,uuid,text)',
   ])
     await client.query(`grant execute on function ${fn} to ${quoted}`);
+  await client.query(
+    `grant select,insert,update,delete on public.event_activities to ${quoted}`,
+  );
 }
