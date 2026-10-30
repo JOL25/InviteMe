@@ -14,6 +14,10 @@ npm run dev -- --port 3101
 
 Abre http://localhost:3101. `db:start` prepara una instancia exclusiva en el puerto 55432 y configura la conexión sin modificar las bases de otros proyectos. Registra una cuenta nueva en `/register`; no se necesita Supabase ni confirmación por correo. No borres `.local/`, donde se conservan los datos.
 
+## Galería
+
+Abre un evento en **Detalles y diseño → Tu galería**. Puedes subir hasta ocho fotos JPG/PNG/WebP de 3 MB, describirlas, añadir un pie, cambiar su orden y eliminarlas. Se incluyen en la vista previa y aparecen para tus invitados al publicar. Al pulsar una foto, se abre un visor con controles de teclado y cierre con Escape.
+
 ## Animaciones
 
 Al entrar, el título aparece por líneas desde ambos lados y las secciones se revelan al desplazarte. Los botones y las preguntas frecuentes responden al clic. En la esquina inferior derecha puedes activar/desactivar los efectos y pulsar **Repetir entrada**. La elección se recuerda en el navegador; inicialmente se respeta la preferencia de movimiento reducido del sistema.
@@ -29,7 +33,7 @@ Al entrar, el título aparece por líneas desde ambos lados y las secciones se r
 
 ## Alcance
 
-Una plantilla clásica, portada, paleta y mensaje; eventos por propietario, vista previa privada, publicación, RSVP abierto, invitados, CSV y QR. Sin pagos, mensajería automática, galería, itinerario ni contador de invitados pendientes.
+Una plantilla clásica, portada, galería de hasta ocho fotos, paleta y mensaje; eventos por propietario, vista previa privada, publicación, RSVP abierto, invitados, CSV y QR. Sin pagos, mensajería automática, galería, itinerario ni contador de invitados pendientes.
 
 Consulta [las decisiones](docs/decisions.md) y [el progreso](docs/progress.md).
 

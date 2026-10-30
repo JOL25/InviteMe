@@ -3,7 +3,13 @@ import { cache } from 'react';
 import { hasDatabase } from '@/lib/env';
 import { query } from '@/lib/db';
 import { coverUrl } from '@/lib/event-store';
-import type { Event, PublicEvent } from '@/types/database';
+import { projectPhotos } from '@/lib/gallery';
+import type {
+  Event,
+  PublicEvent,
+  GalleryItem,
+  GalleryPhoto,
+} from '@/types/database';
 export function projectPublicEvent(
   event: Pick<
     Event,
@@ -21,6 +27,7 @@ export function projectPublicEvent(
     | 'message'
   >,
   cover_url: string | null,
+  gallery: GalleryPhoto[] = [],
 ): PublicEvent {
   return {
     slug: event.slug,
@@ -36,6 +43,7 @@ export function projectPublicEvent(
     accent_color: event.accent_color,
     message: event.message,
     cover_url,
+    gallery,
   };
 }
 export const getPublicEvent = cache(
@@ -46,6 +54,14 @@ export const getPublicEvent = cache(
       [slug],
     );
     const data = rows[0];
-    return data ? projectPublicEvent(data, coverUrl(data.cover_path)) : null;
+    if (!data) return null;
+    const { rows: photos } = await query<
+      Pick<GalleryItem, 'id' | 'alt_text' | 'caption'>
+    >('select * from public.invitation_photos($1)', [slug]);
+    return projectPublicEvent(
+      data,
+      coverUrl(data.cover_path),
+      projectPhotos(photos),
+    );
   },
 );

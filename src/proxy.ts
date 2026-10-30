@@ -12,5 +12,6 @@ export const config = {
     '/auth/:path*',
     '/api/events/:path*',
     '/api/covers/:path*',
+    '/api/photos/:path*',
   ],
 };

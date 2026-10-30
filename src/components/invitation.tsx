@@ -13,6 +13,7 @@ import { Countdown } from '@/components/countdown';
 import { RSVPForm } from '@/components/rsvp-form';
 import { Brand } from '@/components/brand';
 import { ScrollReveal } from '@/components/scroll-reveal';
+import { PhotoGallery } from '@/components/photo-gallery';
 import { categoryLabels } from '@/lib/validators';
 import type { PublicEvent } from '@/types/database';
 export function Invitation({
@@ -41,7 +42,7 @@ export function Invitation({
           className={`invitation-hero ${event.cover_url ? 'has-cover' : ''}`}
         >
           {event.cover_url && (
-            /* Signed, user-uploaded images; no optimizer cache beyond expiry. */ <picture className="invitation-cover">
+            /* Permission-checked uploads bypass the optimizer cache. */ <picture className="invitation-cover">
               <img src={event.cover_url} alt="Portada de la celebración" />
             </picture>
           )}
@@ -110,6 +111,7 @@ export function Invitation({
             </article>
           </div>
         </section>
+        <PhotoGallery photos={event.gallery} />
         <section className="invitation-rsvp" id="rsvp" data-reveal>
           <span className="eyebrow">TU PRESENCIA ES EL MEJOR REGALO</span>
           <h2>

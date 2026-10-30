@@ -14,4 +14,5 @@ export const sampleEvent: PublicEvent = {
   message:
     'Hay historias que merecen celebrarse. Después de tantos momentos juntos, queremos compartir el más especial con las personas que hacen nuestra vida más bonita.\n\nNos haría muy felices que nos acompañes.',
   cover_url: null,
+  gallery: [],
 };

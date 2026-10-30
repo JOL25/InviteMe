@@ -3,13 +3,16 @@ import { EventForm } from '@/components/event-form';
 import { PublishButton, DeleteButton } from '@/components/event-controls';
 import { ownedEvent } from '@/lib/events';
 import { CoverForm } from '@/components/cover-form';
+import { GalleryManager } from '@/components/gallery-manager';
+import { ownedGallery } from '@/lib/gallery';
 export default async function EditEvent({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { event } = await ownedEvent(id);
+  const { event, user } = await ownedEvent(id);
+  const photos = await ownedGallery(id, user.id);
   return (
     <>
       <Link className="back-link" href="/dashboard">
@@ -33,6 +36,7 @@ export default async function EditEvent({
       </nav>
       <EventForm event={event} />
       <CoverForm id={id} hasCover={Boolean(event.cover_path)} />
+      <GalleryManager eventId={id} photos={photos} />
       <div className="danger-zone">
         <DeleteButton id={id} />
       </div>

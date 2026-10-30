@@ -20,7 +20,7 @@ npm run db:stop
 npm run db:migrate
 ```
 
-`db:stop` detiene solo esta instancia. No borres `.local/`: contiene los datos y las credenciales de esta instalación. Para respaldo, usa `pg_dump` contra `DATABASE_URL` y guarda el archivo fuera del repositorio; incluye usuarios, sesiones, eventos, respuestas y portadas.
+`db:stop` detiene solo esta instancia. No borres `.local/`: contiene los datos y las credenciales de esta instalación. Para respaldo, usa `pg_dump` con la conexión `DATABASE_MIGRATION_URL` de `.env.database`, que puede leer todas las tablas protegidas por RLS, y guarda el archivo fuera del repositorio; incluye usuarios, sesiones, eventos, respuestas, portadas y fotos de galería.
 
 ## Otra instancia de PostgreSQL
 
@@ -31,6 +31,12 @@ Puedes usar una base dedicada existente en vez del helper: crea dos roles distin
 El registro local inicia sesión inmediatamente; no envía correo de confirmación. Las cuentas anteriores de Supabase no existen aquí. Contraseñas con scrypt y sal aleatoria, sesiones aleatorias de siete días cuyo token se guarda solo como SHA-256 en PostgreSQL, cookies HttpOnly y SameSite=Lax. Cerrar sesión revoca el token en la base. El acceso a cada operación privada verifica sesión y propietario, y RLS limita las filas de eventos, respuestas y portadas. La identidad se configura con SET LOCAL dentro de cada transacción, y desaparece al confirmar o revertir; no hay Data API, JWT de Supabase ni acceso a PostgreSQL desde el navegador. Las consultas usan parámetros. Los límites de autenticación y RSVP persisten en la base. Cuentas, sesiones, límites y migraciones tienen RLS sin políticas públicas y no conceden lectura directa al usuario de aplicación. Funciones acotadas con SECURITY DEFINER y search_path vacío permiten autenticación, proyección pública y RSVP transaccional; sus permisos están enumerados en `scripts/runtime-grants.mjs`. El rol de aplicación es exclusivo del backend: nunca se entrega al navegador.
 
 Las portadas de hasta 3 MB se almacenan como `bytea`, con reemplazo transaccional y borrado en cascada. `/api/covers/[id]` comprueba que el evento esté publicado o que la sesión pertenezca al dueño, en cada petición. Despublicar corta el acceso público sin esperar a que caduque una URL firmada.
+
+## Galería de fotos
+
+En la edición del evento, **Tu galería** permite añadir hasta ocho fotos de 3 MB cada una, JPG/PNG/WebP, con descripción obligatoria y pie opcional. Se carga una por petición, de modo que el límite de Server Actions sigue siendo 4 MB. La API comprueba la firma del archivo sin confiar en nombre o MIME enviados. Puedes editar los textos, cambiar el orden y eliminar con confirmación. La vista previa incluye las fotos de borrador; la URL pública solo las sirve mientras el evento esté publicado. El visor ampliado admite flechas, Escape y devolución del foco al botón de origen.
+
+La migración `003_event_gallery.sql` agrega RLS, posiciones únicas del 0 al 7, identidad inmutable y borrado en cascada. El rol restringido recibe permisos explícitos de la tabla y de las funciones de proyección/lectura. `/api/photos/[id]` responde sin caché y verifica acceso en cada petición. La ruta de bytes no expone los nombres originales de archivo. Sin fotos, la sección no aparece en la invitación.
 
 ## Variables
 
@@ -45,3 +51,5 @@ Antes de publicar fuera del equipo se necesitan HTTPS, una base accesible desde 
 ## Verificación
 
 `npm run check` ejecuta lint, tipos, validadores, contraseñas y SQL real compilado a WASM. `npm run test:e2e` comprueba el sitio sin configuración, en escritorio y móvil. `npm run test:local` crea una base temporal en PostgreSQL real, aplica migraciones y ejecuta los flujos privados y públicos desde el navegador; la elimina al terminar. Usa las credenciales administrativas del helper o `TEST_DATABASE_ADMIN_URL` para una instancia de pruebas. Nunca apunta las pruebas a la base de uso diario. En CI se utiliza un servicio PostgreSQL aislado.
+
+Para repetir solo la prueba conectada de galería puedes usar `npm run test:local -- gallery.spec.ts`. Las imágenes de esta prueba se generan localmente y no son fotografías personales.

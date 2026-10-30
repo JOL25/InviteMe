@@ -38,6 +38,19 @@ export type RSVP = {
   idempotency_key: string;
   created_at: string;
 };
+export type GalleryItem = {
+  id: string;
+  event_id: string;
+  position: number;
+  alt_text: string;
+  caption: string;
+};
+export type GalleryPhoto = {
+  id: string;
+  url: string;
+  alt_text: string;
+  caption: string;
+};
 export type PublicEvent = Pick<
   Event,
   | 'slug'
@@ -52,4 +65,4 @@ export type PublicEvent = Pick<
   | 'primary_color'
   | 'accent_color'
   | 'message'
-> & { cover_url: string | null };
+> & { cover_url: string | null; gallery: GalleryPhoto[] };
