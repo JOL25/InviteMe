@@ -2,7 +2,7 @@
 
 ## Alcance acordado
 
-Se parte de la guía de desarrollo revisada el 22 de octubre de 2026. El MVP usa una plantilla clásica, una portada y confirmaciones abiertas por enlace. Las ampliaciones incorporan una galería opcional de hasta ocho fotos, una lista de invitados con enlaces individuales y pendientes fiables, un itinerario de hasta 20 actividades, edición/cancelación de RSVP con enlace privado y recuperación de contraseña con buzón local. Pagos y mensajería siguen fuera del alcance de esta entrega. El envío real de recuperación requiere configurar un proveedor de correo antes de publicar.
+Se parte de la guía de desarrollo revisada el 22 de octubre de 2026. El MVP usa una plantilla clásica, una portada y confirmaciones abiertas por enlace. Las ampliaciones incorporan una galería opcional de hasta ocho fotos, una lista de invitados con enlaces individuales y pendientes fiables, un itinerario de hasta 20 actividades, edición/cancelación de RSVP con enlace privado y recuperación de contraseña con buzón local y soporte SMTP. Pagos y mensajería siguen fuera del alcance de esta entrega. El propietario aún no tiene proveedor SMTP y pidió dejarlo preparado: el equipo conserva el buzón local, sin envíos externos activados.
 
 ## Seguridad y datos
 

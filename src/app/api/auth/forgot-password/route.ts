@@ -2,24 +2,26 @@ import { randomBytes, createHash } from 'node:crypto';
 import { setTimeout } from 'node:timers/promises';
 import { query } from '@/lib/db';
 import { siteUrl } from '@/lib/env';
-import { recoveryMessage, recoveryRequestSchema } from '@/lib/recovery-rules';
+import {
+  recoveryMessage,
+  recoveryEmailMessage,
+  recoveryRequestSchema,
+} from '@/lib/recovery-rules';
 import {
   recoveryRequest,
   recoveryReply,
   recoveryKey,
 } from '@/lib/recovery-http';
-import {
-  localRecoveryEnabled,
-  localMessages,
-  writeLocalMessage,
-} from '../../../../../scripts/local-mail.mjs';
+import { recoveryDelivery } from '@/lib/mail-config';
+import { prepareRecoveryMail, dispatchRecoveryMail } from '@/lib/recovery-mail';
 export const runtime = 'nodejs';
 export async function POST(request: Request) {
   const input = await recoveryRequest(request);
   if ('response' in input) return input.response;
-  if (!localRecoveryEnabled())
+  const delivery = recoveryDelivery();
+  if (!delivery)
     return recoveryReply(
-      { error: 'La recuperación local no está configurada para este sitio.' },
+      { error: 'La recuperación no está configurada para este sitio.' },
       503,
     );
   const raw = input.body as { email?: unknown } | null;
@@ -30,7 +32,7 @@ export async function POST(request: Request) {
     return recoveryReply({ error: parsed.error.issues[0].message }, 400);
   const started = performance.now();
   try {
-    await localMessages();
+    await prepareRecoveryMail();
     const token = randomBytes(32).toString('hex');
     const hash = createHash('sha256').update(token).digest('hex');
     const { rows } = await query<{ issued: boolean }>(
@@ -45,13 +47,19 @@ export async function POST(request: Request) {
     if (rows[0]?.issued) {
       const url = new URL('/reset-password', siteUrl());
       url.hash = `token=${token}`;
-      await writeLocalMessage({
+      await dispatchRecoveryMail({
         to: parsed.data.email,
         kind: 'reset',
         link: url.toString(),
       });
     }
-    return recoveryReply({ success: true, message: recoveryMessage }, 200);
+    return recoveryReply(
+      {
+        success: true,
+        message: delivery === 'local' ? recoveryMessage : recoveryEmailMessage,
+      },
+      200,
+    );
   } catch {
     return recoveryReply(
       { error: 'No pudimos preparar la recuperación. Inténtalo de nuevo.' },

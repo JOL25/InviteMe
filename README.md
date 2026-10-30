@@ -45,7 +45,7 @@ npm run mail:local
 npm run mail:local -- --email tu@correo.com
 ```
 
-Abre el enlace más reciente, escribe la nueva contraseña dos veces e inicia sesión de nuevo. El enlace dura 30 minutos y funciona una sola vez; pedir otro sustituye al anterior. Cambiar la contraseña cierra las sesiones abiertas y conserva tus eventos. Los mensajes locales caducan automáticamente. El buzón está en `.local/mail`, fuera de Git y sin acceso por la web. No se envían correos externos: conectar un proveedor de correo sigue pendiente para publicación.
+Abre el enlace más reciente, escribe la nueva contraseña dos veces e inicia sesión de nuevo. El enlace dura 30 minutos y funciona una sola vez; pedir otro sustituye al anterior. Cambiar la contraseña cierra las sesiones abiertas y conserva tus eventos. Los mensajes locales caducan automáticamente. El buzón está en `.local/mail`, fuera de Git y sin acceso por la web. No se envían correos externos. El soporte SMTP está preparado; su activación queda pendiente de un proveedor y remitente. Consulta [la guía de correo](docs/email.md).
 
 ## Alcance
 

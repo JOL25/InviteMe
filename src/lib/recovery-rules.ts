@@ -14,3 +14,5 @@ export const recoveryResetSchema = z
   });
 export const recoveryMessage =
   'Si existe una cuenta con ese correo y no se superó el límite de solicitudes, encontrarás las instrucciones en el buzón local. El enlace caduca en 30 minutos.';
+export const recoveryEmailMessage =
+  'Si existe una cuenta con ese correo y no se superó el límite de solicitudes, recibirás las instrucciones por correo. El enlace caduca en 30 minutos.';

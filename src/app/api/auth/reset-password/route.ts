@@ -5,10 +5,8 @@ import { hashPassword } from '@/lib/passwords';
 import { sessionCookie } from '@/lib/auth';
 import { recoveryResetSchema } from '@/lib/recovery-rules';
 import { recoveryRequest, recoveryReply } from '@/lib/recovery-http';
-import {
-  localRecoveryEnabled,
-  writeLocalMessage,
-} from '../../../../../scripts/local-mail.mjs';
+import { recoveryDelivery } from '@/lib/mail-config';
+import { dispatchRecoveryMail } from '@/lib/recovery-mail';
 export const runtime = 'nodejs';
 export async function POST(request: Request) {
   const input = await recoveryRequest(request);
@@ -42,8 +40,10 @@ export async function POST(request: Request) {
         400,
       );
     (await cookies()).delete(sessionCookie);
-    if (localRecoveryEnabled())
-      await writeLocalMessage({ to: email, kind: 'changed' }).catch(() => {});
+    if (recoveryDelivery())
+      await dispatchRecoveryMail({ to: email, kind: 'changed' }).catch(
+        () => {},
+      );
     return recoveryReply({ success: true }, 200);
   } catch {
     return recoveryReply(
