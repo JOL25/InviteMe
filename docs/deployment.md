@@ -44,6 +44,7 @@ La migración `003_event_gallery.sql` agrega RLS, posiciones únicas del 0 al 7,
 - `DATABASE_URL`: conexión privada del usuario restringido; nunca usar un prefijo `NEXT_PUBLIC_`.
 - `NEXT_PUBLIC_SITE_URL`: URL del sitio. Usa `http://localhost:3101` para el comando de desarrollo anterior; determina también si la cookie exige HTTPS.
 - `RSVP_RATE_LIMIT_SECRET`: secreto aleatorio de al menos 32 caracteres; el helper lo genera si falta.
+- `INVITATION_LINK_SECRET`: secreto estable de al menos 32 caracteres para reconstruir los enlaces individuales; el helper lo genera si falta. Respáldalo junto con la base, fuera de Git. Si se pierde o cambia, el panel exige renovar los enlaces; los anteriores siguen siendo válidos hasta renovarlos o desactivarlos.
 - Las dos claves Turnstile siguen siendo opcionales, pero deben configurarse juntas para exigir CAPTCHA.
 
 Antes de publicar fuera del equipo se necesitan HTTPS, una base accesible desde el servidor y copias de seguridad. `127.0.0.1` en un hosting remoto se refiere a ese servidor, no a tu PC. Para producción configura `NEXT_PUBLIC_SITE_URL=https://...` para cookies Secure. Los encabezados de IP deben proceder de un proxy de confianza si se habilita acceso público. La recuperación de contraseña por correo no forma parte del flujo local actual.
@@ -53,3 +54,11 @@ Antes de publicar fuera del equipo se necesitan HTTPS, una base accesible desde 
 `npm run check` ejecuta lint, tipos, validadores, contraseñas y SQL real compilado a WASM. `npm run test:e2e` comprueba el sitio sin configuración, en escritorio y móvil. `npm run test:local` crea una base temporal en PostgreSQL real, aplica migraciones y ejecuta los flujos privados y públicos desde el navegador; la elimina al terminar. Usa las credenciales administrativas del helper o `TEST_DATABASE_ADMIN_URL` para una instancia de pruebas. Nunca apunta las pruebas a la base de uso diario. En CI se utiliza un servicio PostgreSQL aislado.
 
 Para repetir solo la prueba conectada de galería puedes usar `npm run test:local -- gallery.spec.ts`. Las imágenes de esta prueba se generan localmente y no son fotografías personales.
+
+## Invitaciones individuales
+
+La migración `004_named_invitations.sql` añade la lista privada de invitados con RLS y una respuesta única por invitación. El cupo individual incluye al invitado y sus acompañantes; todas las confirmaciones comparten el cupo global del evento. Las operaciones y las respuestas bloquean la misma fila del evento para evitar excederlo con envíos simultáneos.
+
+Los enlaces se comparten manualmente desde **Lista de invitados**. El token viaja en el fragmento `#invitado=`, que el navegador no envía al servidor al navegar; el formulario lo valida mediante JSON por POST. La base conserva un hash del token y un nonce, y el servidor reconstruye el enlace con HMAC. El endpoint público solo devuelve nombre, cupo y respuesta de esa invitación, sin contactos ni lista completa. Es un enlace de acceso: quien lo reciba podrá responder por su destinatario.
+
+Renovar o desactivar invalida el enlace anterior y conserva las respuestas. Los registros sin respuesta se pueden editar o eliminar; los que respondieron se conservan sin cambios. Los pendientes cuentan registros sin respuesta individual, incluyendo los desactivados. El enlace abierto no vincula respuestas por nombres o correos. La lista se pagina y filtra por estado; el panel de respuestas y CSV indican el origen. No hay envíos automáticos ni edición/cancelación de respuestas en esta etapa. Para repetir las pruebas conectadas: `npm run test:local -- invitees.spec.ts`.

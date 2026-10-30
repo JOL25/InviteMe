@@ -33,7 +33,9 @@ Al entrar, el título aparece por líneas desde ambos lados y las secciones se r
 
 ## Alcance
 
-Una plantilla clásica, portada, galería de hasta ocho fotos, paleta y mensaje; eventos por propietario, vista previa privada, publicación, RSVP abierto, invitados, CSV y QR. Sin pagos, mensajería automática, galería, itinerario ni contador de invitados pendientes.
+Una plantilla clásica, portada, galería de hasta ocho fotos, paleta y mensaje; eventos por propietario, vista previa privada, publicación, RSVP abierto e individual, lista de invitados con pendientes, CSV y QR. Sin pagos, mensajería automática, itinerario ni edición/cancelación de respuestas.
+
+En **Lista de invitados**, añade nombres, contacto opcional y cupo por invitación. Comparte manualmente el enlace individual de cada persona después de publicar. Puedes renovarlo o desactivarlo. Cada invitación permite una respuesta; los pendientes cuentan invitaciones de esta lista, incluso las desactivadas. Las respuestas abiertas se distinguen en el panel y el CSV y no descuentan pendientes por coincidencias de nombre o correo. Conserva `INVITATION_LINK_SECRET` al respaldar o mover el proyecto para poder recuperar los mismos enlaces desde el panel.
 
 Consulta [las decisiones](docs/decisions.md) y [el progreso](docs/progress.md).
 
@@ -45,7 +47,7 @@ Supabase continúa pausado. Por decisión del propietario, la base local empieza
 
 ## Rutas principales
 
-`/` landing · `/ejemplo` muestra interactiva sin envíos · `/login` · `/register` · `/dashboard` · `/dashboard/events/new` · `/dashboard/events/[id]/edit` · `/dashboard/events/[id]/preview` · `/dashboard/events/[id]/guests` · `/dashboard/events/[id]/share` · `/i/[slug]`.
+`/` landing · `/ejemplo` muestra interactiva sin envíos · `/login` · `/register` · `/dashboard` · `/dashboard/events/new` · `/dashboard/events/[id]/edit` · `/dashboard/events/[id]/preview` · `/dashboard/events/[id]/invitees` · `/dashboard/events/[id]/guests` · `/dashboard/events/[id]/share` · `/i/[slug]`.
 
 ## Seguridad de dependencias
 

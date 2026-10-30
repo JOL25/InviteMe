@@ -2,7 +2,7 @@
 
 ## Alcance acordado
 
-Se parte de la guía de desarrollo revisada el 22 de octubre de 2026. El MVP usa una plantilla clásica, una portada y confirmaciones abiertas por enlace. No existe un padrón de invitados, por lo que no se calcula un total de pendientes. La siguiente ampliación incorpora una galería opcional de hasta ocho fotos por evento. Itinerario, invitados nominativos, edición/cancelación de RSVP, pagos y mensajería siguen pendientes o fuera del alcance de esta entrega.
+Se parte de la guía de desarrollo revisada el 22 de octubre de 2026. El MVP usa una plantilla clásica, una portada y confirmaciones abiertas por enlace. Las ampliaciones incorporan una galería opcional de hasta ocho fotos y una lista de invitados con enlaces individuales y pendientes fiables. Itinerario, edición/cancelación de RSVP, pagos y mensajería siguen pendientes o fuera del alcance de esta entrega.
 
 ## Seguridad y datos
 
