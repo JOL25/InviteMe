@@ -8,10 +8,12 @@ import {
   rename,
   unlink,
 } from 'node:fs/promises';
+// Preserve the runtime-filesystem annotations in the compiler's documented form.
+// prettier-ignore
 export function localMailDirectory() {
   const root = path.resolve('.local');
   const directory = path.resolve(
-    /* turbopackIgnore: true */
+    /*turbopackIgnore: true*/
     process.env.PASSWORD_RESET_OUTBOX || path.join(root, 'mail'),
   );
   const relative = path.relative(root, directory);
@@ -33,21 +35,22 @@ export function localRecoveryEnabled() {
     return false;
   }
 }
+// prettier-ignore
 export async function localMessages() {
   const directory = localMailDirectory();
   // These are private runtime files, never build-time input or bundled assets.
-  await mkdir(/* turbopackIgnore: true */ directory, {
+  await mkdir(/*turbopackIgnore: true*/ directory, {
     recursive: true,
     mode: 0o700,
   });
   const messages = [];
-  for (const file of await readdir(/* turbopackIgnore: true */ directory)) {
+  for (const file of await readdir(/*turbopackIgnore: true*/ directory)) {
     if (!/^[a-f0-9-]{36}\.json$/.test(file)) continue;
     try {
       const message = JSON.parse(
         await readFile(
-          /* turbopackIgnore: true */ path.join(
-            /* turbopackIgnore: true */ directory,
+          /*turbopackIgnore: true*/ path.join(
+            /*turbopackIgnore: true*/ directory,
             file,
           ),
           'utf8',
@@ -64,8 +67,8 @@ export async function localMessages() {
         continue;
       if (Date.parse(message.expires_at) <= Date.now()) {
         await unlink(
-          /* turbopackIgnore: true */ path.join(
-            /* turbopackIgnore: true */ directory,
+          /*turbopackIgnore: true*/ path.join(
+            /*turbopackIgnore: true*/ directory,
             file,
           ),
         );
@@ -79,6 +82,7 @@ export async function localMessages() {
   return messages.sort((a, b) => b.created_at.localeCompare(a.created_at));
 }
 /** @param {{to: string, kind: 'reset' | 'changed', link?: string}} input */
+// prettier-ignore
 export async function writeLocalMessage(input) {
   if (!localRecoveryEnabled())
     throw new Error('La entrega local no está habilitada.');
@@ -92,11 +96,11 @@ export async function writeLocalMessage(input) {
     expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
   };
   const temporary = path.join(
-    /* turbopackIgnore: true */ directory,
+    /*turbopackIgnore: true*/ directory,
     `${id}.tmp`,
   );
   await writeFile(
-    /* turbopackIgnore: true */ temporary,
+    /*turbopackIgnore: true*/ temporary,
     JSON.stringify(message),
     {
       mode: 0o600,
@@ -104,7 +108,7 @@ export async function writeLocalMessage(input) {
     },
   );
   await rename(
-    /* turbopackIgnore: true */ temporary,
-    path.join(/* turbopackIgnore: true */ directory, `${id}.json`),
+    /*turbopackIgnore: true*/ temporary,
+    path.join(/*turbopackIgnore: true*/ directory, `${id}.json`),
   );
 }

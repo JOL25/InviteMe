@@ -32,6 +32,16 @@ El registro local inicia sesión inmediatamente; no envía correo de confirmaci�
 
 Las portadas de hasta 3 MB se almacenan como `bytea`, con reemplazo transaccional y borrado en cascada. `/api/covers/[id]` comprueba que el evento esté publicado o que la sesión pertenezca al dueño, en cada petición. Despublicar corta el acceso público sin esperar a que caduque una URL firmada.
 
+## Recuperación de contraseña local
+
+Las migraciones `007_password_recovery.sql` y `008_recovery_issuance_variable.sql` incorporan enlaces privados, límites y apertura de sesión condicionada al hash de contraseña verificado. La segunda corrige un nombre de variable ambiguo sin modificar la primera migración ya aplicada. Las tablas de recuperación tienen RLS y no conceden acceso directo al runtime; este solo ejecuta funciones enumeradas con search_path vacío. El enlace se guarda como SHA-256, caduca en 30 minutos y se consume bajo bloqueo del usuario; revoca todas sus sesiones. Un login que verificó la contraseña anterior no puede abrir sesión después del cambio. Los datos del evento no se modifican.
+
+`db:start` configura `PASSWORD_RESET_DELIVERY=local` si falta. Solo funciona con `NEXT_PUBLIC_SITE_URL` de localhost, 127.0.0.1 o ::1; no debe usarse como entrega para un dominio público. Los mensajes se guardan en `.local/mail`, accesibles solo desde el filesystem. `npm run mail:local` permite consultar los vigentes; admite `-- --email tu@correo.com`. Contienen el enlace privado en texto para que puedas abrirlo: protege el directorio como las credenciales locales. No lo publiques ni lo incluyas en un respaldo compartido. La CLI y las nuevas entregas eliminan mensajes caducados. No se envía correo externo ni hay una bandeja pública en la web. Para una publicación real falta conectar un proveedor con entrega al correo de la cuenta.
+
+La solicitud usa respuesta y tiempo mínimo comunes para correos registrados/desconocidos o limitados. Admite hasta tres solicitudes por correo y diez por IP cada 15 minutos; los intentos de consumo tienen un límite separado de diez por IP. Se usa HMAC con el secreto existente y dominio separado para las claves del límite. Las API validan origen, JSON de hasta 4 KiB, contraseña de 10 a 128 caracteres y confirmación coincidente. No revelan el token ni el correo en la respuesta. El token viaja en el fragmento y se envía al consumirlo por POST; visitar el enlace no lo consume. No hay inicio de sesión automático tras el cambio. El aviso de cambio se conserva en el mismo buzón local, sin contraseña.
+
+La base de pruebas y el buzón se aíslan juntos en `test:local` y se eliminan al terminar, sin leer el buzón de uso diario. Para repetir el flujo: `npm run test:local -- recovery.spec.ts`. El diseño sigue las recomendaciones de [OWASP sobre recuperación de contraseñas](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html): respuesta genérica, token aleatorio limitado a un uso, caducidad, confirmación de contraseña y revocación de sesiones.
+
 ## Galería de fotos
 
 En la edición del evento, **Tu galería** permite añadir hasta ocho fotos de 3 MB cada una, JPG/PNG/WebP, con descripción obligatoria y pie opcional. Se carga una por petición, de modo que el límite de Server Actions sigue siendo 4 MB. La API comprueba la firma del archivo sin confiar en nombre o MIME enviados. Puedes editar los textos, cambiar el orden y eliminar con confirmación. La vista previa incluye las fotos de borrador; la URL pública solo las sirve mientras el evento esté publicado. El visor ampliado admite flechas, Escape y devolución del foco al botón de origen.
@@ -49,9 +59,11 @@ El itinerario se almacena en `event_activities` mediante la migración `005_even
 - `NEXT_PUBLIC_SITE_URL`: URL del sitio. Usa `http://localhost:3101` para el comando de desarrollo anterior; determina también si la cookie exige HTTPS.
 - `RSVP_RATE_LIMIT_SECRET`: secreto aleatorio de al menos 32 caracteres; el helper lo genera si falta.
 - `INVITATION_LINK_SECRET`: secreto estable de al menos 32 caracteres para reconstruir los enlaces individuales; el helper lo genera si falta. Respáldalo junto con la base, fuera de Git. Si se pierde o cambia, el panel exige renovar los enlaces; los anteriores siguen siendo válidos hasta renovarlos o desactivarlos.
+- `PASSWORD_RESET_DELIVERY=local`: habilita el buzón local únicamente con URL de loopback; el helper lo configura si falta. No realiza entregas externas.
+- `PASSWORD_RESET_OUTBOX`: opcional, directorio del buzón dentro de `.local`; por defecto `.local/mail`. El runner configura otro directorio exclusivo para cada base de pruebas y lo elimina al terminar.
 - Las dos claves Turnstile siguen siendo opcionales, pero deben configurarse juntas para exigir CAPTCHA.
 
-Antes de publicar fuera del equipo se necesitan HTTPS, una base accesible desde el servidor y copias de seguridad. `127.0.0.1` en un hosting remoto se refiere a ese servidor, no a tu PC. Para producción configura `NEXT_PUBLIC_SITE_URL=https://...` para cookies Secure. Los encabezados de IP deben proceder de un proxy de confianza si se habilita acceso público. La recuperación de contraseña por correo no forma parte del flujo local actual.
+Antes de publicar fuera del equipo se necesitan HTTPS, una base accesible desde el servidor y copias de seguridad. `127.0.0.1` en un hosting remoto se refiere a ese servidor, no a tu PC. Para producción configura `NEXT_PUBLIC_SITE_URL=https://...` para cookies Secure. Los encabezados de IP deben proceder de un proxy de confianza si se habilita acceso público. La recuperación local usa un buzón privado; el envío por correo real requiere conectar un proveedor.
 
 ## Verificación
 

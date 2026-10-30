@@ -35,6 +35,18 @@ En **Detalles y diseño → Itinerario**, añade hasta 20 actividades con títul
 - `npm run test:local`: flujo completo contra una base PostgreSQL temporal.
 - `npm run db:status` / `npm run db:stop`: consultar o detener la instancia local.
 
+## Recuperar una cuenta en este equipo
+
+En **Iniciar sesión → Olvidé mi contraseña**, solicita un enlace usando el correo de la cuenta. Consulta el buzón privado desde la carpeta del proyecto:
+
+```powershell
+npm run mail:local
+# Opcional: filtrar por destinatario
+npm run mail:local -- --email tu@correo.com
+```
+
+Abre el enlace más reciente, escribe la nueva contraseña dos veces e inicia sesión de nuevo. El enlace dura 30 minutos y funciona una sola vez; pedir otro sustituye al anterior. Cambiar la contraseña cierra las sesiones abiertas y conserva tus eventos. Los mensajes locales caducan automáticamente. El buzón está en `.local/mail`, fuera de Git y sin acceso por la web. No se envían correos externos: conectar un proveedor de correo sigue pendiente para publicación.
+
 ## Alcance
 
 Una plantilla clásica, portada, galería de hasta ocho fotos, itinerario de hasta 20 actividades, paleta y mensaje; eventos por propietario, vista previa privada, publicación, RSVP abierto e individual con edición/cancelación, lista de invitados con pendientes, CSV y QR. Sin pagos ni mensajería automática.
@@ -53,7 +65,7 @@ Supabase continúa pausado. Por decisión del propietario, la base local empieza
 
 ## Rutas principales
 
-`/` landing · `/ejemplo` muestra interactiva sin envíos · `/login` · `/register` · `/dashboard` · `/dashboard/events/new` · `/dashboard/events/[id]/edit` · `/dashboard/events/[id]/preview` · `/dashboard/events/[id]/invitees` · `/dashboard/events/[id]/guests` · `/dashboard/events/[id]/share` · `/i/[slug]`.
+`/` landing · `/ejemplo` muestra interactiva sin envíos · `/login` · `/register` · `/forgot-password` · `/reset-password` · `/dashboard` · `/dashboard/events/new` · `/dashboard/events/[id]/edit` · `/dashboard/events/[id]/preview` · `/dashboard/events/[id]/invitees` · `/dashboard/events/[id]/guests` · `/dashboard/events/[id]/share` · `/i/[slug]`.
 
 ## Seguridad de dependencias
 

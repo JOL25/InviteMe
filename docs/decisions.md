@@ -2,11 +2,12 @@
 
 ## Alcance acordado
 
-Se parte de la guía de desarrollo revisada el 22 de octubre de 2026. El MVP usa una plantilla clásica, una portada y confirmaciones abiertas por enlace. Las ampliaciones incorporan una galería opcional de hasta ocho fotos, una lista de invitados con enlaces individuales y pendientes fiables, un itinerario de hasta 20 actividades y edición/cancelación de RSVP con enlace privado. Pagos y mensajería siguen fuera del alcance de esta entrega.
+Se parte de la guía de desarrollo revisada el 22 de octubre de 2026. El MVP usa una plantilla clásica, una portada y confirmaciones abiertas por enlace. Las ampliaciones incorporan una galería opcional de hasta ocho fotos, una lista de invitados con enlaces individuales y pendientes fiables, un itinerario de hasta 20 actividades, edición/cancelación de RSVP con enlace privado y recuperación de contraseña con buzón local. Pagos y mensajería siguen fuera del alcance de esta entrega. El envío real de recuperación requiere configurar un proveedor de correo antes de publicar.
 
 ## Seguridad y datos
 
 - Autenticación SSR mediante cookies. Cada operación privada verifica la identidad en servidor; las consultas privadas exigen el propietario autenticado y las políticas RLS vuelven a limitar las filas en PostgreSQL. La aplicación usa un rol distinto al dueño de las tablas, sin BYPASSRLS.
+- Recuperación local mediante token aleatorio de 256 bits en el fragmento del enlace, hash en tabla privada, vencimiento de 30 minutos y consumo único. Un nuevo enlace sustituye al anterior; cambiar la contraseña elimina enlaces y sesiones de esa cuenta. La emisión y el cambio no abren sesión automáticamente. El inicio de sesión bloquea la misma fila de usuario y vuelve a comprobar el hash verificado para impedir que una autenticación pendiente con contraseña vieja sobreviva al cambio. Buzón privado de filesystem solo con configuración explícita y URL de loopback; no hay endpoint para leer mensajes ni envío externo.
 - Invitaciones públicas mediante una proyección explícita desde servidor. Nunca se entrega `owner_id`, datos de invitados ni credenciales secretas.
 - La escritura pública de RSVP pasa por una API y una función SQL transaccional, invocada solo desde servidor. Bloqueo del evento para serializar cambios de capacidad y reservas.
 - Una clave UUID de idempotencia evita duplicados por reintento. No pretende identificar a una persona: con enlaces abiertos, una misma persona puede responder desde varios dispositivos.

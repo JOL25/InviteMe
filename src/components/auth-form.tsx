@@ -59,6 +59,11 @@ export function AuthForm({
       <p id="password-help" className="field-help">
         Usa al menos 10 caracteres.
       </p>
+      {!registering && (
+        <Link className="text-link" href="/forgot-password">
+          Olvidé mi contraseña
+        </Link>
+      )}
       <SubmitButton
         disabled={!configured}
         pending={registering ? 'Creando tu cuenta…' : 'Entrando…'}
