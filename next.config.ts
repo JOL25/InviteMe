@@ -3,6 +3,7 @@ const config: NextConfig = {
   poweredByHeader: false,
   turbopack: { root: process.cwd() },
   outputFileTracingRoot: process.cwd(),
+  serverExternalPackages: ['nodemailer'],
   // Runtime databases, outbox messages and credentials must never be packaged.
   outputFileTracingExcludes: { '/*': ['./.local/**/*', './.env*'] },
   experimental: { serverActions: { bodySizeLimit: '4mb' } },
