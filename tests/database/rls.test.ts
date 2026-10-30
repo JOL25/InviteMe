@@ -41,6 +41,10 @@ beforeAll(async () => {
       "insert into rsvps(event_id,guest_name,attendance,party_size,idempotency_key) values($1,'Invitado',true,1,gen_random_uuid())",
       [id],
     );
+    await db.query(
+      "insert into event_photos(id,event_id,position,alt_text,content_type,bytes) values($1,$1,0,'Recuerdo familiar','image/png',$2)",
+      [id, new Uint8Array([137, 80, 78, 71])],
+    );
   }
 });
 afterAll(async () => {
@@ -57,7 +61,7 @@ async function asActor<T>(user: string | null, work: () => Promise<T>) {
 }
 it('sin identidad no revela tablas, aunque el evento esté publicado', async () => {
   await asActor(null, async () => {
-    for (const table of ['events', 'rsvps', 'covers'])
+    for (const table of ['events', 'rsvps', 'covers', 'event_photos'])
       expect((await db.query(`select * from ${table}`)).rows).toHaveLength(0);
     const published = (
       await db.query('select * from public.public_invitation($1)', [
@@ -88,7 +92,99 @@ it('RLS filtra eventos, respuestas y portadas aun sin WHERE owner_id', async () 
       expect((await db.query('select event_id from covers')).rows).toEqual([
         { event_id: id },
       ]);
+      expect(
+        (await db.query('select event_id from event_photos')).rows,
+      ).toEqual([{ event_id: id }]);
     });
+});
+
+it('las fotos públicas no revelan datos de almacenamiento ni borradores', async () => {
+  await asActor(null, async () => {
+    const photos = (
+      await db.query<{ id: string; alt_text: string; caption: string }>(
+        'select * from public.invitation_photos($1)',
+        ['published-event'],
+      )
+    ).rows;
+    expect(photos).toHaveLength(1);
+    expect(Object.keys(photos[0]).sort()).toEqual([
+      'alt_text',
+      'caption',
+      'id',
+    ]);
+    expect(
+      (
+        await db.query('select * from public.invitation_photos($1)', [
+          'private-event',
+        ])
+      ).rows,
+    ).toHaveLength(0);
+    expect(
+      (await db.query('select * from public.read_gallery_photo($1)', [first]))
+        .rows,
+    ).toHaveLength(1);
+    expect(
+      (await db.query('select * from public.read_gallery_photo($1)', [second]))
+        .rows,
+    ).toHaveLength(0);
+  });
+  await asActor(other, async () => {
+    expect(
+      (await db.query('select * from public.read_gallery_photo($1)', [second]))
+        .rows,
+    ).toHaveLength(1);
+  });
+});
+it('otro dueño no puede modificar, eliminar o insertar fotos ajenas', async () => {
+  await asActor(other, async () => {
+    expect(
+      (
+        await db.query(
+          "update event_photos set caption='Intrusión' where id=$1 returning id",
+          [first],
+        )
+      ).rows,
+    ).toHaveLength(0);
+    expect(
+      (
+        await db.query('delete from event_photos where id=$1 returning id', [
+          first,
+        ])
+      ).rows,
+    ).toHaveLength(0);
+  });
+  await asActor(other, async () => {
+    await expect(
+      db.query(
+        "insert into event_photos(event_id,position,alt_text,content_type,bytes) values($1,1,'Foto ajena','image/png',$2)",
+        [first, new Uint8Array([1])],
+      ),
+    ).rejects.toThrow(/row-level security/);
+  });
+});
+it('el esquema impide una novena foto y el cambio de identidad', async () => {
+  await db.exec('begin');
+  try {
+    for (let position = 1; position < 8; position++)
+      await db.query(
+        "insert into event_photos(event_id,position,alt_text,content_type,bytes) values($1,$2,'Recuerdo familiar','image/png',$3)",
+        [first, position, new Uint8Array([1])],
+      );
+    await expect(
+      db.query(
+        "insert into event_photos(event_id,position,alt_text,content_type,bytes) values($1,8,'Novena foto','image/png',$2)",
+        [first, new Uint8Array([1])],
+      ),
+    ).rejects.toThrow(/check constraint/);
+  } finally {
+    await db.exec('rollback');
+  }
+  await expect(
+    db.query('update event_photos set event_id=$1 where id=$2', [
+      second,
+      first,
+    ]),
+  ).rejects.toThrow(/Photo identity is immutable/);
 });
 it('impide modificar y borrar un evento ajeno y crear eventos a otro dueño', async () => {
   await asActor(other, async () => {
