@@ -4,6 +4,7 @@ import { ownedEvent } from '@/lib/events';
 import { projectPublicEvent } from '@/lib/public-event';
 import { Invitation } from '@/components/invitation';
 import { ownedGallery, projectPhotos } from '@/lib/gallery';
+import { ownedActivities } from '@/lib/itinerary';
 export default async function Preview({
   params,
 }: {
@@ -12,6 +13,7 @@ export default async function Preview({
   const { id } = await params;
   const { event, user } = await ownedEvent(id);
   const photos = await ownedGallery(id, user.id);
+  const activities = await ownedActivities(id, user.id);
   return (
     <>
       <div className="preview-banner">
@@ -23,6 +25,7 @@ export default async function Preview({
           event,
           coverUrl(event.cover_path),
           projectPhotos(photos),
+          activities,
         )}
         preview
       />

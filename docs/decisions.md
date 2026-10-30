@@ -2,7 +2,7 @@
 
 ## Alcance acordado
 
-Se parte de la guía de desarrollo revisada el 22 de octubre de 2026. El MVP usa una plantilla clásica, una portada y confirmaciones abiertas por enlace. Las ampliaciones incorporan una galería opcional de hasta ocho fotos y una lista de invitados con enlaces individuales y pendientes fiables. Itinerario, edición/cancelación de RSVP, pagos y mensajería siguen pendientes o fuera del alcance de esta entrega.
+Se parte de la guía de desarrollo revisada el 22 de octubre de 2026. El MVP usa una plantilla clásica, una portada y confirmaciones abiertas por enlace. Las ampliaciones incorporan una galería opcional de hasta ocho fotos, una lista de invitados con enlaces individuales y pendientes fiables y un itinerario de hasta 20 actividades. Edición/cancelación de RSVP, pagos y mensajería siguen pendientes o fuera del alcance de esta entrega.
 
 ## Seguridad y datos
 
@@ -14,6 +14,7 @@ Se parte de la guía de desarrollo revisada el 22 de octubre de 2026. El MVP usa
 - Capacidad reducida nunca puede quedar por debajo de asistentes ya confirmados.
 - Portadas y fotos de galería en PostgreSQL local como bytea, servidas por rutas que verifican publicación o propiedad en cada petición. La galería admite ocho fotos, con descripción accesible, pie opcional y orden editable. Las modificaciones de orden, altas y bajas se serializan bloqueando el evento; el esquema impone ocho posiciones únicas.
 - Fechas almacenadas como `timestamptz` y zona IANA separada. El formulario convierte desde la zona del evento.
+- Itinerario ordenado por fecha/hora y UUID como desempate estable. Cada actividad tiene su propio instante, permitiendo varios días; cambiar la zona del evento conserva esos instantes y modifica su presentación. La zona enviada por el navegador no decide la conversión: el servidor consulta la del evento bajo bloqueo. No se permite reordenar manualmente de forma contraria a los horarios.
 - El tema se guarda en la misma fila del evento para que datos y personalización se actualicen atómicamente. Se separará en una tabla cuando existan temas reutilizables. La identidad local procede de `app_users` y `app_sessions`; los formularios no deciden el propietario.
 
 ## Dependencias y despliegue

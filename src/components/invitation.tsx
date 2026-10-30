@@ -15,6 +15,7 @@ import { Brand } from '@/components/brand';
 import { ScrollReveal } from '@/components/scroll-reveal';
 import { PhotoGallery } from '@/components/photo-gallery';
 import { RSVPLink } from '@/components/rsvp-link';
+import { EventItinerary } from '@/components/event-itinerary';
 import { categoryLabels } from '@/lib/validators';
 import type { PublicEvent } from '@/types/database';
 export function Invitation({
@@ -113,6 +114,10 @@ export function Invitation({
           </div>
         </section>
         <PhotoGallery photos={event.gallery} />
+        <EventItinerary
+          activities={event.itinerary}
+          timezone={event.timezone}
+        />
         <section className="invitation-rsvp" id="rsvp" data-reveal>
           <span className="eyebrow">TU PRESENCIA ES EL MEJOR REGALO</span>
           <h2>

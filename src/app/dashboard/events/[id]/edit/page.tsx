@@ -5,6 +5,8 @@ import { ownedEvent } from '@/lib/events';
 import { CoverForm } from '@/components/cover-form';
 import { GalleryManager } from '@/components/gallery-manager';
 import { ownedGallery } from '@/lib/gallery';
+import { ownedActivities } from '@/lib/itinerary';
+import { ItineraryManager } from '@/components/itinerary-manager';
 export default async function EditEvent({
   params,
 }: {
@@ -13,6 +15,7 @@ export default async function EditEvent({
   const { id } = await params;
   const { event, user } = await ownedEvent(id);
   const photos = await ownedGallery(id, user.id);
+  const activities = await ownedActivities(id, user.id);
   return (
     <>
       <Link className="back-link" href="/dashboard">
@@ -30,6 +33,7 @@ export default async function EditEvent({
       </div>
       <nav className="tabs" aria-label="Gestionar evento">
         <span aria-current="page">Detalles y diseño</span>
+        <a href="#itinerary">Itinerario</a>
         <Link href={`/dashboard/events/${id}/preview`}>Vista previa ↗</Link>
         <Link href={`/dashboard/events/${id}/guests`}>Respuestas</Link>
         <Link href={`/dashboard/events/${id}/invitees`}>
@@ -40,6 +44,12 @@ export default async function EditEvent({
       <EventForm event={event} />
       <CoverForm id={id} hasCover={Boolean(event.cover_path)} />
       <GalleryManager eventId={id} photos={photos} />
+      <ItineraryManager
+        eventId={id}
+        timezone={event.timezone}
+        startsAt={event.starts_at}
+        activities={activities}
+      />
       <div className="danger-zone">
         <DeleteButton id={id} />
       </div>

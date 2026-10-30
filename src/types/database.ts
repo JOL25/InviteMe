@@ -52,6 +52,13 @@ export type GalleryPhoto = {
   alt_text: string;
   caption: string;
 };
+export type Activity = {
+  id: string;
+  title: string;
+  description: string;
+  venue_name: string;
+  starts_at: string;
+};
 export type PublicEvent = Pick<
   Event,
   | 'slug'
@@ -66,4 +73,8 @@ export type PublicEvent = Pick<
   | 'primary_color'
   | 'accent_color'
   | 'message'
-> & { cover_url: string | null; gallery: GalleryPhoto[] };
+> & {
+  cover_url: string | null;
+  gallery: GalleryPhoto[];
+  itinerary: Activity[];
+};

@@ -9,6 +9,7 @@ import type {
   PublicEvent,
   GalleryItem,
   GalleryPhoto,
+  Activity,
 } from '@/types/database';
 export function projectPublicEvent(
   event: Pick<
@@ -28,6 +29,7 @@ export function projectPublicEvent(
   >,
   cover_url: string | null,
   gallery: GalleryPhoto[] = [],
+  itinerary: Activity[] = [],
 ): PublicEvent {
   return {
     slug: event.slug,
@@ -44,6 +46,7 @@ export function projectPublicEvent(
     message: event.message,
     cover_url,
     gallery,
+    itinerary,
   };
 }
 export const getPublicEvent = cache(
@@ -58,10 +61,15 @@ export const getPublicEvent = cache(
     const { rows: photos } = await query<
       Pick<GalleryItem, 'id' | 'alt_text' | 'caption'>
     >('select * from public.invitation_photos($1)', [slug]);
+    const { rows: activities } = await query<Activity>(
+      'select * from public.invitation_activities($1)',
+      [slug],
+    );
     return projectPublicEvent(
       data,
       coverUrl(data.cover_path),
       projectPhotos(photos),
+      activities,
     );
   },
 );

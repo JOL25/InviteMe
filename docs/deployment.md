@@ -38,6 +38,10 @@ En la edición del evento, **Tu galería** permite añadir hasta ocho fotos de 3
 
 La migración `003_event_gallery.sql` agrega RLS, posiciones únicas del 0 al 7, identidad inmutable y borrado en cascada. El rol restringido recibe permisos explícitos de la tabla y de las funciones de proyección/lectura. `/api/photos/[id]` responde sin caché y verifica acceso en cada petición. La ruta de bytes no expone los nombres originales de archivo. Sin fotos, la sección no aparece en la invitación.
 
+## Itinerario
+
+El itinerario se almacena en `event_activities` mediante la migración `005_event_itinerary.sql`. Incluye título, descripción/lugar opcionales y `starts_at`; el respaldo completo de la base incluye estas filas. RLS restringe las escrituras y lecturas privadas al propietario. El límite de 20 actividades se comprueba bajo bloqueo del evento tanto en el backend como al insertar en SQL. La función pública enumera únicamente los campos de la actividad y exige publicación. La interfaz interpreta las fechas en la zona del evento y las presenta en esa misma zona, también sin JavaScript; cambiarla conserva los instantes ya guardados. Prueba conectada específica: `npm run test:local -- itinerary.spec.ts`.
+
 ## Variables
 
 - `DATABASE_MIGRATION_URL`: solo comandos de migración, en `.env.database`. No configurar en el proceso de la web.

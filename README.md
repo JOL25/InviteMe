@@ -22,6 +22,10 @@ Abre un evento en **Detalles y diseño → Tu galería**. Puedes subir hasta och
 
 Al entrar, el título aparece por líneas desde ambos lados y las secciones se revelan al desplazarte. Los botones y las preguntas frecuentes responden al clic. En la esquina inferior derecha puedes activar/desactivar los efectos y pulsar **Repetir entrada**. La elección se recuerda en el navegador; inicialmente se respeta la preferencia de movimiento reducido del sistema.
 
+## Itinerario
+
+En **Detalles y diseño → Itinerario**, añade hasta 20 actividades con título, fecha y hora, descripción y lugar opcionales. Se ordenan automáticamente por fecha y hora usando la zona del evento y admiten varios días. Puedes editarlas o eliminarlas con confirmación. Se muestran en la vista previa y en la invitación publicada; cuando la lista está vacía, la sección desaparece. Si cambias la zona horaria del evento, los instantes guardados se conservan y se muestran en la nueva zona.
+
 ## Comprobaciones
 
 - `npm run check`: ESLint, TypeScript y pruebas.
@@ -33,7 +37,7 @@ Al entrar, el título aparece por líneas desde ambos lados y las secciones se r
 
 ## Alcance
 
-Una plantilla clásica, portada, galería de hasta ocho fotos, paleta y mensaje; eventos por propietario, vista previa privada, publicación, RSVP abierto e individual, lista de invitados con pendientes, CSV y QR. Sin pagos, mensajería automática, itinerario ni edición/cancelación de respuestas.
+Una plantilla clásica, portada, galería de hasta ocho fotos, itinerario de hasta 20 actividades, paleta y mensaje; eventos por propietario, vista previa privada, publicación, RSVP abierto e individual, lista de invitados con pendientes, CSV y QR. Sin pagos, mensajería automática ni edición/cancelación de respuestas.
 
 En **Lista de invitados**, añade nombres, contacto opcional y cupo por invitación. Comparte manualmente el enlace individual de cada persona después de publicar. Puedes renovarlo o desactivarlo. Cada invitación permite una respuesta; los pendientes cuentan invitaciones de esta lista, incluso las desactivadas. Las respuestas abiertas se distinguen en el panel y el CSV y no descuentan pendientes por coincidencias de nombre o correo. Conserva `INVITATION_LINK_SECRET` al respaldar o mover el proyecto para poder recuperar los mismos enlaces desde el panel.
 
