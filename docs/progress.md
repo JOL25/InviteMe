@@ -242,3 +242,7 @@ Verificado: respaldo real de la base diaria creado en .local/backups, con 13 tab
 Ocho pruebas repetibles con PostgreSQL 17 real, bases y roles temporales. Comprueban respaldo completo, hashes de contraseña, fotos y portadas binarias, respuestas, itinerario y secretos con caracteres especiales; enlaces y RLS tras restaurar; cierre de sesiones y recuperación copiadas; rechazo de destino existente; alteración del dump y de la configuración; verificación temporal; y limpieza tras fallo real de pg_restore. El origen conserva sus datos. CI usa los binarios PostgreSQL 17 del contenedor de servicio, pasando credenciales por entorno y el archivo por streams.
 
 Resultado local: ocho pruebas de respaldo aprobadas, además de las 118 unitarias/SQL de esta etapa; formato, lint y tipos correctos. CI incorpora la suite de respaldo junto con las 24 pruebas públicas, 15 recorridos locales y dos de SMTP ya existentes. Se conserva el respaldo real de 13 tablas, comprobado por db:verify; no se activa SMTP ni se reactiva Supabase.
+
+## 36. Validación de rutas privadas (30/10/2026)
+
+La validación distingue subir al directorio padre de un nombre interno que solo empieza por dos puntos. Una carpeta interna como ..backups se rechaza igual que public o docs; dentro del proyecto solo se admite .local. Caso añadido a la prueba existente de rutas: seis pruebas del módulo aprobadas, lint y tipos correctos.

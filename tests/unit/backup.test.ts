@@ -46,7 +46,7 @@ it('impide respaldos dentro de carpetas públicas o versionadas del proyecto', (
   expect(privateDirectoryAllowed(path.resolve('.local/backups'))).toBe(
     path.resolve('.local/backups'),
   );
-  for (const target of ['public/backups', 'docs/backups', '.'])
+  for (const target of ['public/backups', 'docs/backups', '..backups', '.'])
     expect(() => privateDirectoryAllowed(path.resolve(target))).toThrow();
 });
 it('transmite la contraseña al cliente PG mediante entorno, sin introducirla en argumentos', () => {

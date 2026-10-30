@@ -77,7 +77,8 @@ export function privateDirectoryAllowed(directory, workspace = process.cwd()) {
   );
   if (
     !relative ||
-    (!relative.startsWith('..') &&
+    (relative !== '..' &&
+      !relative.startsWith('..' + path.sep) &&
       !path.isAbsolute(relative) &&
       relative.split(path.sep)[0] !== '.local')
   )
