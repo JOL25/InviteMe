@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 declare global {
@@ -20,15 +20,79 @@ declare global {
     };
   }
 }
-export function RSVPForm({
+type Props = { slug: string; sample?: boolean; preview?: boolean };
+type GuestInvitation = {
+  id: string;
+  name: string;
+  max_party_size: number;
+  attendance: boolean | null;
+  party_size: number | null;
+};
+function fragmentToken() {
+  return window.location.hash.startsWith('#invitado=')
+    ? window.location.hash.slice('#invitado='.length)
+    : null;
+}
+function subscribeFragment(notify: () => void) {
+  window.addEventListener('hashchange', notify);
+  return () => window.removeEventListener('hashchange', notify);
+}
+const subscribeReady = () => () => {};
+export function RSVPForm(props: Props) {
+  const inviteToken = useSyncExternalStore(
+    subscribeFragment,
+    fragmentToken,
+    () => null,
+  );
+  const ready = useSyncExternalStore(
+    subscribeReady,
+    () => true,
+    () => false,
+  );
+  return (
+    <RSVPFields
+      key={`${props.slug}:${inviteToken ?? 'open'}`}
+      {...props}
+      inviteToken={inviteToken}
+      ready={ready}
+    />
+  );
+}
+function RSVPFields({
   slug,
   sample = false,
   preview = false,
-}: {
-  slug: string;
-  sample?: boolean;
-  preview?: boolean;
-}) {
+  inviteToken,
+  ready,
+}: Props & { inviteToken: string | null; ready: boolean }) {
+  const [invitation, setInvitation] = useState<GuestInvitation | null>(null);
+  const [invitationError, setInvitationError] = useState('');
+  useEffect(() => {
+    if (inviteToken === null || sample || preview) return;
+    const controller = new AbortController();
+    fetch('/api/invitations/resolve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug, token: inviteToken }),
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok)
+          throw new Error(data.error || 'El enlace no está disponible.');
+        return data as GuestInvitation;
+      })
+      .then(setInvitation)
+      .catch((error) => {
+        if (!controller.signal.aborted)
+          setInvitationError(
+            error instanceof Error
+              ? error.message
+              : 'No pudimos comprobar tu invitación.',
+          );
+      });
+    return () => controller.abort();
+  }, [slug, inviteToken, sample, preview]);
   const router = useRouter();
   const [error, setError] = useState('');
   const [pending, setPending] = useState(false);
@@ -62,11 +126,21 @@ export function RSVPForm({
   }, [loaded, sitekey, sample, preview]);
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (sample || preview || pending) return;
+    if (
+      sample ||
+      preview ||
+      pending ||
+      !ready ||
+      fragmentToken() !== inviteToken ||
+      (inviteToken !== null && !invitation)
+    )
+      return;
     setPending(true);
     setError('');
     const form = new FormData(event.currentTarget);
-    const storageKey = `inviteme-key:${slug}`;
+    const storageKey = invitation
+      ? `inviteme-key:${slug}:guest:${invitation.id}`
+      : `inviteme-key:${slug}`;
     try {
       if (!key.current) {
         try {
@@ -86,6 +160,7 @@ export function RSVPForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           slug,
+          inviteToken: inviteToken ?? undefined,
           guestName: form.get('guestName'),
           guestEmail: form.get('guestEmail'),
           attendance: attendance === 'yes',
@@ -125,8 +200,45 @@ export function RSVPForm({
       }
     }
   }
+  if (inviteToken !== null && !sample && !preview) {
+    if (invitationError)
+      return (
+        <p className="error" role="alert">
+          {invitationError}
+        </p>
+      );
+    if (!invitation)
+      return (
+        <p className="notice" role="status">
+          Comprobando tu invitación individual…
+        </p>
+      );
+    if (invitation.attendance !== null)
+      return (
+        <div className="notice" role="status">
+          <strong>{invitation.name}, ya recibimos tu respuesta.</strong>
+          <p>
+            {invitation.attendance
+              ? `Confirmaste para ${invitation.party_size} ${invitation.party_size === 1 ? 'persona' : 'personas'}.`
+              : 'Nos avisaste que no podrás asistir.'}{' '}
+            Para solicitar cambios, contacta con quien organiza el evento.
+          </p>
+        </div>
+      );
+  }
   return (
     <form onSubmit={submit} className="rsvp-form stack">
+      <noscript>
+        <p className="notice">Activa JavaScript para enviar tu respuesta.</p>
+      </noscript>
+      {invitation && (
+        <p className="notice">
+          Esta invitación es para <strong>{invitation.name}</strong>. Puedes
+          confirmar hasta {invitation.max_party_size}{' '}
+          {invitation.max_party_size === 1 ? 'persona' : 'personas'},
+          incluyéndote.
+        </p>
+      )}
       {(sample || preview) && (
         <p className="notice">
           {sample
@@ -143,6 +255,8 @@ export function RSVPForm({
         Tu nombre
         <input
           name="guestName"
+          defaultValue={invitation?.name ?? ''}
+          readOnly={Boolean(invitation)}
           required
           minLength={2}
           maxLength={120}
@@ -189,11 +303,14 @@ export function RSVPForm({
         <label>
           Personas que asistirán, incluyéndote
           <select name="partySize" defaultValue="1">
-            {Array.from({ length: 10 }, (_, i) => (
-              <option key={i} value={i + 1}>
-                {i + 1} {i === 0 ? 'persona' : 'personas'}
-              </option>
-            ))}
+            {Array.from(
+              { length: invitation?.max_party_size ?? 10 },
+              (_, i) => (
+                <option key={i} value={i + 1}>
+                  {i + 1} {i === 0 ? 'persona' : 'personas'}
+                </option>
+              ),
+            )}
           </select>
         </label>
       )}
@@ -230,7 +347,9 @@ export function RSVPForm({
       <button
         type="submit"
         className="button"
-        disabled={pending || sample || preview || Boolean(sitekey && !token)}
+        disabled={
+          !ready || pending || sample || preview || Boolean(sitekey && !token)
+        }
       >
         {pending
           ? 'Enviando respuesta…'

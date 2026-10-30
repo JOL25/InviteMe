@@ -32,6 +32,9 @@ export default async function EditEvent({
         <span aria-current="page">Detalles y diseño</span>
         <Link href={`/dashboard/events/${id}/preview`}>Vista previa ↗</Link>
         <Link href={`/dashboard/events/${id}/guests`}>Respuestas</Link>
+        <Link href={`/dashboard/events/${id}/invitees`}>
+          Lista de invitados
+        </Link>
         <Link href={`/dashboard/events/${id}/share`}>Compartir y QR</Link>
       </nav>
       <EventForm event={event} />

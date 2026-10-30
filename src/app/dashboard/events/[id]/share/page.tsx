@@ -49,6 +49,12 @@ export default async function Share({
             <h2>Un enlace para todos.</h2>
             <p className="muted">Envíalo por el medio que prefieras.</p>
             <ShareCard url={url} />
+            <Link
+              className="text-link"
+              href={`/dashboard/events/${id}/invitees`}
+            >
+              Gestionar enlaces individuales ↗
+            </Link>
           </section>
           <section className="panel qr-panel">
             <Image

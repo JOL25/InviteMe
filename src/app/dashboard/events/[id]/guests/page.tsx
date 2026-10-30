@@ -3,6 +3,7 @@ import { Download, Users } from 'lucide-react';
 import { formatInTimeZone } from 'date-fns-tz';
 import { ownedReplies } from '@/lib/event-store';
 import { ownedEvent } from '@/lib/events';
+import { inviteSummary } from '@/lib/invitees';
 export default async function Guests({
   params,
   searchParams,
@@ -20,6 +21,7 @@ export default async function Guests({
     attendance,
     page,
   );
+  const invitations = await inviteSummary(id, user.id);
   return (
     <>
       <Link className="back-link" href={`/dashboard/events/${id}/edit`}>
@@ -35,6 +37,15 @@ export default async function Guests({
           <Download size={17} />
           Exportar CSV
         </a>
+      </div>
+      <div className="invitee-pending-banner">
+        <p>
+          <strong>{invitations.pending} pendientes</strong> de{' '}
+          {invitations.total} invitaciones individuales.
+        </p>
+        <Link className="text-link" href={`/dashboard/events/${id}/invitees`}>
+          Gestionar lista de invitados ↗
+        </Link>
       </div>
       <div className="stats-grid">
         <article>
@@ -98,6 +109,11 @@ export default async function Guests({
                   <td>
                     <strong>{row.guest_name}</strong>
                     <small>{row.guest_email || 'Sin correo'}</small>
+                    <small>
+                      {row.guest_id
+                        ? 'Invitación individual'
+                        : 'Enlace abierto'}
+                    </small>
                   </td>
                   <td>
                     <span
@@ -141,8 +157,9 @@ export default async function Guests({
         )}
       </nav>
       <p className="field-help">
-        Una respuesta puede incluir varios asistentes. El enlace abierto no
-        identifica personas ni calcula invitados pendientes.
+        Una respuesta puede incluir varios asistentes. Solo los enlaces
+        individuales descuentan pendientes de la lista; las respuestas abiertas
+        se incluyen en los totales de asistencia.
       </p>
     </>
   );

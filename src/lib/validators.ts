@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { contrastRatio } from '@/lib/colors';
+import { invitationTokenSchema } from '@/lib/invite-rules';
 import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
 
 export const categories = [
@@ -92,6 +93,7 @@ export const rsvpSchema = z.object({
   partySize: z.number().int().min(1).max(10),
   note: optionalText(500),
   idempotencyKey: z.uuid(),
+  inviteToken: invitationTokenSchema.optional(),
   website: z.literal('').optional().default(''),
   turnstileToken: z.string().max(2048).optional(),
 });

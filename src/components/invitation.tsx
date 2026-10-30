@@ -14,6 +14,7 @@ import { RSVPForm } from '@/components/rsvp-form';
 import { Brand } from '@/components/brand';
 import { ScrollReveal } from '@/components/scroll-reveal';
 import { PhotoGallery } from '@/components/photo-gallery';
+import { RSVPLink } from '@/components/rsvp-link';
 import { categoryLabels } from '@/lib/validators';
 import type { PublicEvent } from '@/types/database';
 export function Invitation({
@@ -57,10 +58,10 @@ export function Invitation({
             <p className="invitation-date">{date('dd . MM . yyyy')}</p>
             <span className="invitation-divider" />
             <p>Queremos compartir este momento contigo.</p>
-            <a className="button" href="#rsvp">
+            <RSVPLink>
               {event.rsvp_open ? 'Confirmar asistencia' : 'Ver detalles'}{' '}
               <ArrowUpRight size={17} />
-            </a>
+            </RSVPLink>
           </div>
         </section>
         <section className="invitation-message" data-reveal>

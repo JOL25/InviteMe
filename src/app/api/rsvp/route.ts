@@ -4,6 +4,7 @@ import { rsvpSchema } from '@/lib/validators';
 import { query } from '@/lib/db';
 import { hasDatabase, siteUrl } from '@/lib/env';
 import { limitedJson } from '@/lib/http';
+import { guestTokenHash } from '@/lib/invite-tokens';
 export const runtime = 'nodejs';
 function reply(body: object, status: number) {
   return NextResponse.json(body, {
@@ -84,16 +85,21 @@ export async function POST(request: Request) {
   try {
     const { rows } = await query<{
       result: { status: number; id?: string; error?: string };
-    }>('select public.submit_rsvp($1,$2,$3,$4,$5,$6,$7,$8) result', [
-      input.slug,
-      input.guestName,
-      input.guestEmail,
-      input.attendance,
-      input.partySize,
-      input.note,
-      input.idempotencyKey,
-      hash,
-    ]);
+    }>(
+      input.inviteToken
+        ? 'select public.submit_guest_rsvp($1,$2,$3,$4,$5,$6,$7,$8) result'
+        : 'select public.submit_rsvp($1,$2,$3,$4,$5,$6,$7,$8) result',
+      [
+        input.slug,
+        input.inviteToken ? guestTokenHash(input.inviteToken) : input.guestName,
+        input.guestEmail,
+        input.attendance,
+        input.partySize,
+        input.note,
+        input.idempotencyKey,
+        hash,
+      ],
+    );
     const data = rows[0]?.result;
     if (!data) return reply({ error: 'No pudimos guardar tu respuesta.' }, 503);
     const status = Number(data.status);

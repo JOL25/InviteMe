@@ -7,7 +7,15 @@ export function csvCell(value: string | number) {
 }
 export const csvHeader =
   '\uFEFF' +
-  ['Nombre', 'Correo', 'Asistencia', 'Personas', 'Nota', 'Fecha UTC']
+  [
+    'Nombre',
+    'Correo',
+    'Asistencia',
+    'Personas',
+    'Nota',
+    'Fecha UTC',
+    'Origen de la respuesta',
+  ]
     .map(csvCell)
     .join(',') +
   '\r\n';
@@ -20,6 +28,7 @@ export function rsvpCsvRow(row: RSVP) {
       row.attendance ? row.party_size : 0,
       row.note,
       row.created_at,
+      row.guest_id ? 'Invitación individual' : 'Enlace abierto',
     ]
       .map(csvCell)
       .join(',') + '\r\n'
